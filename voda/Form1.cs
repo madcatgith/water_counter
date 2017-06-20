@@ -304,14 +304,12 @@ namespace voda
             ToSend.Clear();
             mbus.readerrors = 0;
             dataGridView1.Rows.Clear();
-            //dataGridView1.Rows.Remove
             row = 0;
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            //string test_telegram = "6856566808017205171000010603070B0200000C7805171000046D202D2F260413FFE0F505023B0000441355000000426C21260227690003FD1700000004FF0A0204010002FF0B904F03FF0C0A00C00F00031912FF00020201001716";
-            //mbus.telegram_decode(test_telegram);
+            SendToVodokanal();
         }
 
         private bool SendToVodokanal() {

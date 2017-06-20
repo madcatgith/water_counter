@@ -107,9 +107,7 @@ namespace voda
                 if (validateMan(new byte[] { byteData[11], byteData[12] }))
                 {
                     byte[] val = new byte[] { byteData[33], byteData[34], byteData[35], byteData[36] };
-                    //debugHex(val.Reverse().ToArray());
                     normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty), 16);
-                    //Debug.WriteLine(normval);
                     return true;
                 }
                 else
@@ -119,7 +117,6 @@ namespace voda
                         byte[] val = new byte[4];
                         Array.Copy(byteData, byteData.Length - 6, val, 0, 4);
                         normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty));
-                        Debug.WriteLine(normval);
                         return true;
                     }
                     else
