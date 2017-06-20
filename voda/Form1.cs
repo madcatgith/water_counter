@@ -11,6 +11,10 @@ using System.IO;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Net;
+using System.Collections.Generic;
+using System.Web.Script.Serialization;
+using System.Threading;
 
 namespace voda
 {
@@ -64,11 +68,14 @@ namespace voda
             dataGridView1[2,0].Value = "date";*/
         }
 
-        public static int normval;
+        public Mbus mbus = new Mbus();
+
+        /*public static int normval;
         public static int id;
-        public static string m_date;
+        public static string m_date;*/
         public static int row = 0;
-        public static int readerrors = 0;
+        public static bool test_mode = true;
+        //public static int readerrors = 0;
 
         public static List<int[]> idList = new List<int[]>();
         public static List<CounterData> ToSend = new List<CounterData>();
@@ -76,7 +83,7 @@ namespace voda
 
         private void button1_Click(object sender, EventArgs e)
         {
-
+            clear_all_data();
             Stream myStream = null;
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
@@ -95,79 +102,8 @@ namespace voda
                         {
                             string sourceFile = openFileDialog1.FileName;
                             string fullPath = openFileDialog1.FileName;
-                            //Debug.WriteLine(openFileDialog1.FileName);
                             string fileName = openFileDialog1.SafeFileName;
-                            XmlDocument xDoc = new XmlDocument();
-                            //Debug.WriteLine(fullPath);
-                            xDoc.Load(fullPath);
-                            // получим корневой элемент
-                            XmlElement xRoot = xDoc.DocumentElement;
-                            XmlNode mem = xRoot.SelectSingleNode("MEM");
-                            readerrors = 0;
-                            int duplicates = 0;
-                            duplicateList.Clear();
-                            foreach (XmlNode childnode in mem.ChildNodes) {
-                                //richTextBox1.AppendText(childnode.Name+Environment.NewLine);
-
-
-                                foreach (XmlNode child in childnode.ChildNodes) {
-                                    if (child.Name == "MBTIME")
-                                    {
-                                        byte[] timestamp = StringToByteArray(child.InnerText);
-                                        //richTextBox1.AppendText(convertDate(timestamp) + Environment.NewLine);
-                                        m_date = convertDate(timestamp);
-
-                                    }
-                                    if (child.Name == "MBTEL") {
-                                        if (decodeTelegram(child.InnerText))
-                                        {
-                                            //
-                                            if (checkDuplicates(id))
-                                            {
-                                                var dt = DateTime.ParseExact(m_date, "HH:mm dd.MM.yy", CultureInfo.InvariantCulture);
-                                                dataGridView1.Rows.Add();
-                                                //richTextBox1.AppendText(id + ":" + normval + " l" + Environment.NewLine);
-                                                dataGridView1[0, row].Value = row + 1;
-                                                dataGridView1[1, row].Value = id;
-                                                dataGridView1[2, row].Value = normval;
-                                                dataGridView1[3, row].Value = m_date;
-                                                dataGridView1[4, row].Value = ConvertToUnixTime(dt);
-                                                int[] idrow = FindIds(id);
-                                                if (idrow[0] != 0)
-                                                {
-                                                    dataGridView1[5, row].Value = idrow[2];
-                                                    dataGridView1[6, row].Value = idrow[1];
-
-                                                    ToSend.Add(new CounterData()
-                                                    {
-                                                        ID = idrow[2],
-                                                        UNIXTIME = ConvertToUnixTime(dt),
-                                                        POKAZ = normval,
-                                                        NZAV = Convert.ToString(idrow[1])
-                                                    });
-                                                }
-                                                row++;
-                                            }
-                                            else {
-                                                duplicates++;
-                                                duplicateList.Add(id);
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        //richTextBox1.AppendText(child.InnerText + Environment.NewLine);
-                                    }
-                                }
-                            }
-                            ToConsole("Ошибок обработки: " + readerrors);
-                            ToConsole("Дубликатов в файле найдено:" + duplicates);
-                            if (duplicates > 0)
-                            {
-                                ToConsole("Список дубликатов:");
-                                showDuplicates();
-                            }
-
+                            xml_parse(fullPath);
                         }
                     }
                 }
@@ -175,6 +111,85 @@ namespace voda
                 {
                     MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
                 }
+            }
+        }
+
+        private bool xml_parse(string filepath){
+            try
+            {
+                XmlDocument xDoc = new XmlDocument();
+                xDoc.Load(filepath);
+                // получим корневой элемент
+                XmlElement xRoot = xDoc.DocumentElement;
+                XmlNode mem = xRoot.SelectSingleNode("MEM");
+                mbus.readerrors = 0;
+                int duplicates = 0;
+                duplicateList.Clear();
+                foreach (XmlNode childnode in mem.ChildNodes)
+                {
+                    foreach (XmlNode child in childnode.ChildNodes)
+                    {
+                        if (child.Name == "MBTIME")
+                        {
+                            byte[] timestamp = mbus.StringToByteArray(child.InnerText);
+                            mbus.m_date = mbus.convertDate(timestamp);
+
+                        }
+                        if (child.Name == "MBTEL")
+                        {
+                            if (mbus.decodeTelegram(child.InnerText))
+                            {
+                                //
+                                if (checkDuplicates(mbus.id))
+                                {
+                                    var dt = DateTime.ParseExact(mbus.m_date, "HH:mm dd.MM.yy", CultureInfo.InvariantCulture);
+                                    dataGridView1.Rows.Add();
+                                    dataGridView1[0, row].Value = row + 1;
+                                    dataGridView1[1, row].Value = mbus.id;
+                                    dataGridView1[2, row].Value = mbus.normval;
+                                    dataGridView1[3, row].Value = mbus.m_date;
+                                    dataGridView1[4, row].Value = ConvertToUnixTime(dt);
+                                    int[] idrow = FindIds(mbus.id);
+                                    if (idrow[0] != 0)
+                                    {
+                                        dataGridView1[5, row].Value = idrow[2];
+                                        dataGridView1[6, row].Value = idrow[1];
+
+                                        ToSend.Add(new CounterData()
+                                        {
+                                            ID = idrow[2],
+                                            UNIXTIME = ConvertToUnixTime(dt),
+                                            POKAZ = mbus.normval,
+                                            NZAV = Convert.ToString(idrow[1])
+                                        });
+                                    }
+                                    row++;
+                                }
+                                else
+                                {
+                                    duplicates++;
+                                    duplicateList.Add(mbus.id);
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+                ToConsole("Ошибок обработки: " + mbus.readerrors);
+                ToConsole("Дубликатов в файле найдено:" + duplicates);
+                if (duplicates > 0)
+                {
+                    ToConsole("Список дубликатов:");
+                    showDuplicates();
+                }
+                return true;
+            }
+            catch (Exception ex) {
+                ToConsole(ex.ToString());
+                return false;
             }
         }
 
@@ -193,106 +208,9 @@ namespace voda
             }
         }
 
-        private string convertDate(byte[] data) {
-            //byte[] data = { 0x03,0x2C,0x28,0x26 };
-            int minutes = data[0] & 0x3F;
-            int hours = data[1] & 0x1F;
-            int day = data[2] & 0x1F;
-            int month = (data[3] & 0x0F);
-            int year = ((data[2] & 0xE0) >> 5)|((data[3] & 0xF0) >> 1);
-            //bool isdst = (data[1] & 0x80) ? 1 : 0;
-            string date = hours.ToString().PadLeft(2,'0') + ":" + minutes.ToString().PadLeft(2, '0') + " " + day.ToString().PadLeft(2, '0') + "." + month.ToString().PadLeft(2, '0') + "." + year.ToString();
-            return date;
-        }
-
-        private bool decodeTelegram(string data) {
-            byte[] byteData=StringToByteArray(data);
-            var mbus_header =  new byte[4];
-            var mbus_afterhead = new byte[3];
-            var mbus_id = new byte[4];
-            int i;
-            for (i=0; i < 4; i++) {
-                mbus_header[i] = byteData[i];
-            }
-            if (validateHeader(mbus_header))
-            {
-                for (i = 4; i < 12; i++)
-                {
-                    if (i < 7)
-                    {
-                        mbus_afterhead[i - 4] = byteData[i];
-                    }
-                    else
-                    {
-                        if (i < 11)
-                        {
-                            mbus_id[i - 7] = byteData[i];
-                        }
-                    }
-
-                }
-                //debugHex(mbus_id.Reverse().ToArray());
-                id = Convert.ToInt32(BitConverter.ToString(mbus_id.Reverse().ToArray()).Replace("-", String.Empty));
-                //Debug.WriteLine(id);
-                if (validateMan(new byte[] { byteData[11], byteData[12] }))
-                {
-                    byte[] val = new byte[] { byteData[33], byteData[34], byteData[35], byteData[36] };
-                    //debugHex(val.Reverse().ToArray());
-                    normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty), 16);
-                    //Debug.WriteLine(normval);
-                    return true;
-                }
-                else {
-                    readerrors++;
-                    return false;
-                }
-                
-            }
-            else {
-                readerrors++;
-                return false;
-            }
-           
-
-        }
-
-        private static void debugHex(byte[] data) {
-                Debug.WriteLine(BitConverter.ToString(data).Replace("-"," "));
-        }
-
-
-        private static bool validateHeader(byte[] header) {
-            if ((header[0] == 0x68) && (header[3] == 0x68))
-            {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-
-        private static bool validateMan(byte[] manuf) {
-            if ((manuf[0] == 0x01)&& (manuf[1] == 0x06)){
-                return true;
-            }
-            else{
-                return false;
-            }
-        }
-
-        public static byte[] StringToByteArray(string hex)
-        {
-            return Enumerable.Range(0, hex.Length)
-                             .Where(x => x % 2 == 0)
-                             .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
-                             .ToArray();
-        }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            /*byte[] data = {0x24, 0x40};
-            ReadIdFile("idlist.txt");
-            ShowIdList();*/
             ShowJsonList();
         }
 
@@ -300,7 +218,7 @@ namespace voda
         {
             DateTime sTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-            return (int)(datetime - sTime).TotalSeconds;
+            return (int)(datetime.ToUniversalTime() - sTime).TotalSeconds;
         }
 
         public void ReadIdFile(string path) {
@@ -353,8 +271,8 @@ namespace voda
         }
 
         public void ShowJsonList() {
+            richTextBox1.AppendText("Данные для передачи" + Environment.NewLine);
             foreach (CounterData val in ToSend) {
-                richTextBox1.AppendText("Данные для передачи"+Environment.NewLine);
                 //Debug.WriteLine(val.NZAV);
                 richTextBox1.AppendText("<!---Начало пакета-->"+Environment.NewLine);
                 richTextBox1.AppendText(val.ID.ToString() + Environment.NewLine);
@@ -362,8 +280,8 @@ namespace voda
                 richTextBox1.AppendText(val.POKAZ.ToString() + Environment.NewLine);
                 richTextBox1.AppendText(val.UNIXTIME.ToString() + Environment.NewLine);
                 richTextBox1.AppendText("<!---Конец пакета-->"+Environment.NewLine);
-
             }
+            ToConsole(ToSend.Count.ToString());
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -375,10 +293,258 @@ namespace voda
         {
             duplicateList.Clear();
             ToSend.Clear();
-            readerrors = 0;
+            mbus.readerrors = 0;
             dataGridView1.Rows.Clear();
             //dataGridView1.Rows.Remove
             row = 0;
+        }
+
+        private void clear_all_data() {
+            duplicateList.Clear();
+            ToSend.Clear();
+            mbus.readerrors = 0;
+            dataGridView1.Rows.Clear();
+            //dataGridView1.Rows.Remove
+            row = 0;
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            //string test_telegram = "6856566808017205171000010603070B0200000C7805171000046D202D2F260413FFE0F505023B0000441355000000426C21260227690003FD1700000004FF0A0204010002FF0B904F03FF0C0A00C00F00031912FF00020201001716";
+            //mbus.telegram_decode(test_telegram);
+        }
+
+        private bool SendToVodokanal() {
+            string login = "qwerty";
+            string password = "123456";
+
+            // Упаковщик в формат JSON
+            var serializer = new JavaScriptSerializer();
+
+            // Клиент web-сервиса
+            var webClient = new VodokanalService.WebServiceSoapClient("WebServiceSoap");
+            // Выполнить проверку логина и пароля
+            var loginRequstJson = webClient.LoginEx(login, password);
+
+            // Вывести результат к консоль
+            Console.WriteLine(loginRequstJson);
+
+            // Распаковать строку с результатами аутентификации
+            var loginRequest = (Dictionary<string, object>)serializer.Deserialize(loginRequstJson, typeof(Dictionary<string, object>));
+
+            // Успешность аутентификации
+            bool success = (bool)loginRequest["Success"];
+            
+
+            if (success)
+            {
+                ToConsole("Аутентификация успешна");
+                // Временный билет
+                string ticket = (string)loginRequest["Ticket"];
+                ToConsole(ticket);
+
+                //Передадим данные с показаниями на сервер
+                //Для примера я взял данные по двум счетчикам с потолка
+
+                //Упакуем их в формат JSON
+                //Формат передачи такой: {"jsons":[{"ID":1,"UNIXTIME":234234234,"POKAZ":456.88,"NZAV":"qwr23r2r"},{"ID":2,"UNIXTIME":234254234,"POKAZ":5656.05,"NZAV":"qwr2dswfr2r"}]}
+                var dict = new Dictionary<string, object>();
+                dict.Add("jsons", ToSend);
+                string JsonResult = serializer.Serialize(dict);
+
+                //Передадим на сервер
+                var JsonAnswer = webClient.ExecuteEx("_ACCXB.ADDCOUNTERVALUES", JsonResult, ticket);
+
+                //Посмотрим на ответ сервера
+                var answer = (Dictionary<string, object>)serializer.Deserialize(JsonAnswer, typeof(Dictionary<string, object>));
+
+                //Успешность передачи данных
+                success = (bool)answer["SUCCESS"];
+                return success;
+            }
+            else{
+                return false;
+            }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            Process_Data();
+            button7.Enabled = true;
+            button6.Enabled = false;
+            label2.Text = "0";
+            timer1.Interval = 60000;
+            timer1.Start();
+        }
+
+        private void Process_Data() {
+            clear_all_data();
+            bool filestate = false;
+            string[] filenames = ftp_list_last();
+            foreach (string filename in filenames)
+            {
+                ToConsole(filename);
+                if (ftp_download(filename))
+                {
+                    string fullpath = System.IO.Directory.GetCurrentDirectory() + "\\" + filename;
+                    xml_parse(fullpath);
+                }
+            }
+            ToConsole("Сформировано данных по "+ToSend.Count()+" счетчикам");
+            if (!test_mode)
+            {
+                if (ToSend.Count > 0)
+                {
+                    if (SendToVodokanal())
+                    {
+                        ToConsole("Данные успешно отправлены по " + ToSend.Count + " счетчикам");
+                    }
+                }
+            }
+        }
+
+        //Получить последние 2 файла
+        private string[] ftp_list_last()
+        {
+            try
+            {
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://176.111.58.218/gmiri/");
+                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+                string username = "water_counter";
+                string password = "WATERcounter";
+                request.Credentials = new NetworkCredential(username.Normalize(), password.Normalize());
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                string[] list = null;
+                //Stream responseStream = response.GetResponseStream();
+                using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                {
+                    list = reader.ReadToEnd().Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                }
+                int[] lastfile = new int[2];
+                string[] last = new string[2];
+                foreach (string l_item in list)
+                {
+                    string val = l_item.Replace(" ", "");
+                    string[] name = val.Split(':');
+
+                    if ((name[1].IndexOf("0080A3B46769") > -1) && (name[1].IndexOf(".xml") > -1))
+                    {
+                        string[] f_name = name[1].Trim().Split('_');
+
+                        //Debug.WriteLine();
+                        if (lastfile[0] != null)
+                        {
+                            if (Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4)) > lastfile[0])
+                            {
+                                lastfile[0] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                            }
+                        }
+                        else
+                        {
+                            lastfile[0] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                        }
+
+                    }
+                    else if ((name[1].IndexOf("0080A3B82B1E") > -1) && (name[1].IndexOf(".xml") > -1))
+                    {
+                        string[] f_name = name[1].Trim().Split('_');
+                        if (lastfile[1] != null)
+                        {
+                            if (Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4)) > lastfile[1])
+                            {
+                                lastfile[1] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                            }
+                        }
+                        else
+                        {
+                            lastfile[1] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                        }
+                    }
+                    //ToConsole(name[1]);
+                }
+                //ToConsole(lastfile[0].ToString());
+                last[0] = "0080A3B46769_" + lastfile[0].ToString().PadLeft(3,'0') + ".xml";
+                //ToConsole(lastfile[1].ToString());
+                last[1] = "0080A3B82B1E_" + lastfile[1].ToString().PadLeft(3,'0') + ".xml";
+                return last;
+            }
+            catch (Exception ex) {
+                ToConsole(ex.ToString());
+                return new string[2];
+            }
+        }
+
+        //Скачать файлы с фтп
+        private bool ftp_download(string filename) {
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://176.111.58.218/gmiri/"+filename);
+            request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+            string username = "water_counter";
+            string password = "WATERcounter";
+            request.Credentials = new NetworkCredential(username.Normalize(), password.Normalize());
+
+            // устанавливаем метод на загрузку файлов
+            request.Method = WebRequestMethods.Ftp.DownloadFile;
+            
+            // создаем поток для загрузки файла
+            if (File.Exists(filename))
+            {
+                // Note that no lock is put on the
+                // file and the possibility exists
+                // that another process could do
+                // something with it between
+                // the calls to Exists and Delete.
+                File.Delete(filename);
+            }
+
+            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+            Stream ftpStream = response.GetResponseStream();
+
+            FileStream localFileStream = new FileStream(filename, FileMode.Create);
+            int bufferSize = 2048;
+            byte[] byteBuffer = new byte[bufferSize];
+            int bytesRead = ftpStream.Read(byteBuffer, 0, bufferSize);
+
+            try
+            {
+                while (bytesRead > 0)
+                {
+                    localFileStream.Write(byteBuffer, 0, bytesRead);
+                    bytesRead = ftpStream.Read(byteBuffer, 0, bufferSize);
+                }
+            }
+
+            catch (Exception) { }
+
+            localFileStream.Close();
+            ftpStream.Close();
+            response.Close();
+            request = null;
+
+            // получаем ответ от сервера в виде объекта FtpWebResponse
+            //FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+            ToConsole("Загрузка файлов завершена. Статус: "+response.StatusDescription);
+            if (response.StatusDescription.IndexOf("226") > -1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            Process_Data();
+            label2.Text = (Int32.Parse(label2.Text) + 1).ToString();
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            timer1.Stop();
+            button7.Enabled = false;
+            button6.Enabled = true;
         }
     }
 }

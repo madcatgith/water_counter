@@ -1,0 +1,990 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="Login">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoginResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="LoginResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoginEx">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoginExResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="LoginExResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoginByCookies">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoginByCookiesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="LoginByCookiesResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SignOut">
+        <s:complexType />
+      </s:element>
+      <s:element name="SignOutResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="IsAuthenticated">
+        <s:complexType />
+      </s:element>
+      <s:element name="IsAuthenticatedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="IsAuthenticatedResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoginByGoogleId">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="LoginByGoogleIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="LoginByGoogleIdResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Execute">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="calcId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="args" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ExecuteResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteEx">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="calcId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="args" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ticket" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteExResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ExecuteExResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteWithTimeout">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="calcId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="args" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ticket" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="timeout" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteWithTimeoutResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ExecuteWithTimeoutResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateSession">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ticket" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sessionId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateSessionResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="ChangePassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oldPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="newPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ticket" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ChangePasswordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ChangePasswordResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="IsEnabled">
+        <s:complexType />
+      </s:element>
+      <s:element name="IsEnabledResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="IsEnabledResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="boolean" type="s:boolean" />
+      <s:element name="anyType" nillable="true" />
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="LoginSoapIn">
+    <wsdl:part name="parameters" element="tns:Login" />
+  </wsdl:message>
+  <wsdl:message name="LoginSoapOut">
+    <wsdl:part name="parameters" element="tns:LoginResponse" />
+  </wsdl:message>
+  <wsdl:message name="LoginExSoapIn">
+    <wsdl:part name="parameters" element="tns:LoginEx" />
+  </wsdl:message>
+  <wsdl:message name="LoginExSoapOut">
+    <wsdl:part name="parameters" element="tns:LoginExResponse" />
+  </wsdl:message>
+  <wsdl:message name="LoginByCookiesSoapIn">
+    <wsdl:part name="parameters" element="tns:LoginByCookies" />
+  </wsdl:message>
+  <wsdl:message name="LoginByCookiesSoapOut">
+    <wsdl:part name="parameters" element="tns:LoginByCookiesResponse" />
+  </wsdl:message>
+  <wsdl:message name="SignOutSoapIn">
+    <wsdl:part name="parameters" element="tns:SignOut" />
+  </wsdl:message>
+  <wsdl:message name="SignOutSoapOut">
+    <wsdl:part name="parameters" element="tns:SignOutResponse" />
+  </wsdl:message>
+  <wsdl:message name="IsAuthenticatedSoapIn">
+    <wsdl:part name="parameters" element="tns:IsAuthenticated" />
+  </wsdl:message>
+  <wsdl:message name="IsAuthenticatedSoapOut">
+    <wsdl:part name="parameters" element="tns:IsAuthenticatedResponse" />
+  </wsdl:message>
+  <wsdl:message name="LoginByGoogleIdSoapIn">
+    <wsdl:part name="parameters" element="tns:LoginByGoogleId" />
+  </wsdl:message>
+  <wsdl:message name="LoginByGoogleIdSoapOut">
+    <wsdl:part name="parameters" element="tns:LoginByGoogleIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteSoapIn">
+    <wsdl:part name="parameters" element="tns:Execute" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteSoapOut">
+    <wsdl:part name="parameters" element="tns:ExecuteResponse" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteExSoapIn">
+    <wsdl:part name="parameters" element="tns:ExecuteEx" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteExSoapOut">
+    <wsdl:part name="parameters" element="tns:ExecuteExResponse" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteWithTimeoutSoapIn">
+    <wsdl:part name="parameters" element="tns:ExecuteWithTimeout" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteWithTimeoutSoapOut">
+    <wsdl:part name="parameters" element="tns:ExecuteWithTimeoutResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateSessionSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateSession" />
+  </wsdl:message>
+  <wsdl:message name="UpdateSessionSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateSessionResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangePasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:ChangePassword" />
+  </wsdl:message>
+  <wsdl:message name="ChangePasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:ChangePasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IsEnabledSoapIn">
+    <wsdl:part name="parameters" element="tns:IsEnabled" />
+  </wsdl:message>
+  <wsdl:message name="IsEnabledSoapOut">
+    <wsdl:part name="parameters" element="tns:IsEnabledResponse" />
+  </wsdl:message>
+  <wsdl:message name="LoginHttpGetIn">
+    <wsdl:part name="login" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginExHttpGetIn">
+    <wsdl:part name="login" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginExHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginByCookiesHttpGetIn">
+    <wsdl:part name="value" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginByCookiesHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="SignOutHttpGetIn" />
+  <wsdl:message name="SignOutHttpGetOut" />
+  <wsdl:message name="IsAuthenticatedHttpGetIn" />
+  <wsdl:message name="IsAuthenticatedHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="LoginByGoogleIdHttpGetIn">
+    <wsdl:part name="token" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginByGoogleIdHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpGetIn">
+    <wsdl:part name="calcId" type="s:string" />
+    <wsdl:part name="args" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteExHttpGetIn">
+    <wsdl:part name="calcId" type="s:string" />
+    <wsdl:part name="args" type="s:string" />
+    <wsdl:part name="ticket" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteExHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteWithTimeoutHttpGetIn">
+    <wsdl:part name="calcId" type="s:string" />
+    <wsdl:part name="args" type="s:string" />
+    <wsdl:part name="ticket" type="s:string" />
+    <wsdl:part name="timeout" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteWithTimeoutHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateSessionHttpGetIn">
+    <wsdl:part name="ticket" type="s:string" />
+    <wsdl:part name="sessionId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateSessionHttpGetOut" />
+  <wsdl:message name="ChangePasswordHttpGetIn">
+    <wsdl:part name="login" type="s:string" />
+    <wsdl:part name="oldPassword" type="s:string" />
+    <wsdl:part name="newPassword" type="s:string" />
+    <wsdl:part name="ticket" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangePasswordHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="IsEnabledHttpGetIn" />
+  <wsdl:message name="IsEnabledHttpGetOut">
+    <wsdl:part name="Body" element="tns:anyType" />
+  </wsdl:message>
+  <wsdl:message name="LoginHttpPostIn">
+    <wsdl:part name="login" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginExHttpPostIn">
+    <wsdl:part name="login" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginExHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginByCookiesHttpPostIn">
+    <wsdl:part name="value" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginByCookiesHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="SignOutHttpPostIn" />
+  <wsdl:message name="SignOutHttpPostOut" />
+  <wsdl:message name="IsAuthenticatedHttpPostIn" />
+  <wsdl:message name="IsAuthenticatedHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="LoginByGoogleIdHttpPostIn">
+    <wsdl:part name="token" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="LoginByGoogleIdHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpPostIn">
+    <wsdl:part name="calcId" type="s:string" />
+    <wsdl:part name="args" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteExHttpPostIn">
+    <wsdl:part name="calcId" type="s:string" />
+    <wsdl:part name="args" type="s:string" />
+    <wsdl:part name="ticket" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteExHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteWithTimeoutHttpPostIn">
+    <wsdl:part name="calcId" type="s:string" />
+    <wsdl:part name="args" type="s:string" />
+    <wsdl:part name="ticket" type="s:string" />
+    <wsdl:part name="timeout" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteWithTimeoutHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateSessionHttpPostIn">
+    <wsdl:part name="ticket" type="s:string" />
+    <wsdl:part name="sessionId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateSessionHttpPostOut" />
+  <wsdl:message name="ChangePasswordHttpPostIn">
+    <wsdl:part name="login" type="s:string" />
+    <wsdl:part name="oldPassword" type="s:string" />
+    <wsdl:part name="newPassword" type="s:string" />
+    <wsdl:part name="ticket" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangePasswordHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="IsEnabledHttpPostIn" />
+  <wsdl:message name="IsEnabledHttpPostOut">
+    <wsdl:part name="Body" element="tns:anyType" />
+  </wsdl:message>
+  <wsdl:portType name="WebServiceSoap">
+    <wsdl:operation name="Login">
+      <wsdl:input message="tns:LoginSoapIn" />
+      <wsdl:output message="tns:LoginSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginEx">
+      <wsdl:input message="tns:LoginExSoapIn" />
+      <wsdl:output message="tns:LoginExSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginByCookies">
+      <wsdl:input message="tns:LoginByCookiesSoapIn" />
+      <wsdl:output message="tns:LoginByCookiesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <wsdl:input message="tns:SignOutSoapIn" />
+      <wsdl:output message="tns:SignOutSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsAuthenticated">
+      <wsdl:input message="tns:IsAuthenticatedSoapIn" />
+      <wsdl:output message="tns:IsAuthenticatedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginByGoogleId">
+      <wsdl:input message="tns:LoginByGoogleIdSoapIn" />
+      <wsdl:output message="tns:LoginByGoogleIdSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Execute">
+      <wsdl:input message="tns:ExecuteSoapIn" />
+      <wsdl:output message="tns:ExecuteSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteEx">
+      <wsdl:input message="tns:ExecuteExSoapIn" />
+      <wsdl:output message="tns:ExecuteExSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteWithTimeout">
+      <wsdl:input message="tns:ExecuteWithTimeoutSoapIn" />
+      <wsdl:output message="tns:ExecuteWithTimeoutSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateSession">
+      <wsdl:input message="tns:UpdateSessionSoapIn" />
+      <wsdl:output message="tns:UpdateSessionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <wsdl:input message="tns:ChangePasswordSoapIn" />
+      <wsdl:output message="tns:ChangePasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsEnabled">
+      <wsdl:input message="tns:IsEnabledSoapIn" />
+      <wsdl:output message="tns:IsEnabledSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="WebServiceHttpGet">
+    <wsdl:operation name="Login">
+      <wsdl:input message="tns:LoginHttpGetIn" />
+      <wsdl:output message="tns:LoginHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginEx">
+      <wsdl:input message="tns:LoginExHttpGetIn" />
+      <wsdl:output message="tns:LoginExHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginByCookies">
+      <wsdl:input message="tns:LoginByCookiesHttpGetIn" />
+      <wsdl:output message="tns:LoginByCookiesHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <wsdl:input message="tns:SignOutHttpGetIn" />
+      <wsdl:output message="tns:SignOutHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsAuthenticated">
+      <wsdl:input message="tns:IsAuthenticatedHttpGetIn" />
+      <wsdl:output message="tns:IsAuthenticatedHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginByGoogleId">
+      <wsdl:input message="tns:LoginByGoogleIdHttpGetIn" />
+      <wsdl:output message="tns:LoginByGoogleIdHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Execute">
+      <wsdl:input message="tns:ExecuteHttpGetIn" />
+      <wsdl:output message="tns:ExecuteHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteEx">
+      <wsdl:input message="tns:ExecuteExHttpGetIn" />
+      <wsdl:output message="tns:ExecuteExHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteWithTimeout">
+      <wsdl:input message="tns:ExecuteWithTimeoutHttpGetIn" />
+      <wsdl:output message="tns:ExecuteWithTimeoutHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateSession">
+      <wsdl:input message="tns:UpdateSessionHttpGetIn" />
+      <wsdl:output message="tns:UpdateSessionHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <wsdl:input message="tns:ChangePasswordHttpGetIn" />
+      <wsdl:output message="tns:ChangePasswordHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsEnabled">
+      <wsdl:input message="tns:IsEnabledHttpGetIn" />
+      <wsdl:output message="tns:IsEnabledHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="WebServiceHttpPost">
+    <wsdl:operation name="Login">
+      <wsdl:input message="tns:LoginHttpPostIn" />
+      <wsdl:output message="tns:LoginHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginEx">
+      <wsdl:input message="tns:LoginExHttpPostIn" />
+      <wsdl:output message="tns:LoginExHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginByCookies">
+      <wsdl:input message="tns:LoginByCookiesHttpPostIn" />
+      <wsdl:output message="tns:LoginByCookiesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <wsdl:input message="tns:SignOutHttpPostIn" />
+      <wsdl:output message="tns:SignOutHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsAuthenticated">
+      <wsdl:input message="tns:IsAuthenticatedHttpPostIn" />
+      <wsdl:output message="tns:IsAuthenticatedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="LoginByGoogleId">
+      <wsdl:input message="tns:LoginByGoogleIdHttpPostIn" />
+      <wsdl:output message="tns:LoginByGoogleIdHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Execute">
+      <wsdl:input message="tns:ExecuteHttpPostIn" />
+      <wsdl:output message="tns:ExecuteHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteEx">
+      <wsdl:input message="tns:ExecuteExHttpPostIn" />
+      <wsdl:output message="tns:ExecuteExHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteWithTimeout">
+      <wsdl:input message="tns:ExecuteWithTimeoutHttpPostIn" />
+      <wsdl:output message="tns:ExecuteWithTimeoutHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateSession">
+      <wsdl:input message="tns:UpdateSessionHttpPostIn" />
+      <wsdl:output message="tns:UpdateSessionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <wsdl:input message="tns:ChangePasswordHttpPostIn" />
+      <wsdl:output message="tns:ChangePasswordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="IsEnabled">
+      <wsdl:input message="tns:IsEnabledHttpPostIn" />
+      <wsdl:output message="tns:IsEnabledHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="WebServiceSoap" type="tns:WebServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Login">
+      <soap:operation soapAction="http://tempuri.org/Login" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginEx">
+      <soap:operation soapAction="http://tempuri.org/LoginEx" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginByCookies">
+      <soap:operation soapAction="http://tempuri.org/LoginByCookies" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <soap:operation soapAction="http://tempuri.org/SignOut" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsAuthenticated">
+      <soap:operation soapAction="http://tempuri.org/IsAuthenticated" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginByGoogleId">
+      <soap:operation soapAction="http://tempuri.org/LoginByGoogleId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Execute">
+      <soap:operation soapAction="http://tempuri.org/Execute" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteEx">
+      <soap:operation soapAction="http://tempuri.org/ExecuteEx" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteWithTimeout">
+      <soap:operation soapAction="http://tempuri.org/ExecuteWithTimeout" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateSession">
+      <soap:operation soapAction="http://tempuri.org/UpdateSession" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <soap:operation soapAction="http://tempuri.org/ChangePassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsEnabled">
+      <soap:operation soapAction="http://tempuri.org/IsEnabled" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="WebServiceSoap12" type="tns:WebServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Login">
+      <soap12:operation soapAction="http://tempuri.org/Login" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginEx">
+      <soap12:operation soapAction="http://tempuri.org/LoginEx" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginByCookies">
+      <soap12:operation soapAction="http://tempuri.org/LoginByCookies" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <soap12:operation soapAction="http://tempuri.org/SignOut" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsAuthenticated">
+      <soap12:operation soapAction="http://tempuri.org/IsAuthenticated" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginByGoogleId">
+      <soap12:operation soapAction="http://tempuri.org/LoginByGoogleId" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Execute">
+      <soap12:operation soapAction="http://tempuri.org/Execute" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteEx">
+      <soap12:operation soapAction="http://tempuri.org/ExecuteEx" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteWithTimeout">
+      <soap12:operation soapAction="http://tempuri.org/ExecuteWithTimeout" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateSession">
+      <soap12:operation soapAction="http://tempuri.org/UpdateSession" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <soap12:operation soapAction="http://tempuri.org/ChangePassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsEnabled">
+      <soap12:operation soapAction="http://tempuri.org/IsEnabled" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="WebServiceHttpGet" type="tns:WebServiceHttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="Login">
+      <http:operation location="/Login" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginEx">
+      <http:operation location="/LoginEx" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginByCookies">
+      <http:operation location="/LoginByCookies" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <http:operation location="/SignOut" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="IsAuthenticated">
+      <http:operation location="/IsAuthenticated" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginByGoogleId">
+      <http:operation location="/LoginByGoogleId" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Execute">
+      <http:operation location="/Execute" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteEx">
+      <http:operation location="/ExecuteEx" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteWithTimeout">
+      <http:operation location="/ExecuteWithTimeout" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateSession">
+      <http:operation location="/UpdateSession" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <http:operation location="/ChangePassword" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsEnabled">
+      <http:operation location="/IsEnabled" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="WebServiceHttpPost" type="tns:WebServiceHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="Login">
+      <http:operation location="/Login" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginEx">
+      <http:operation location="/LoginEx" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginByCookies">
+      <http:operation location="/LoginByCookies" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SignOut">
+      <http:operation location="/SignOut" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="IsAuthenticated">
+      <http:operation location="/IsAuthenticated" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LoginByGoogleId">
+      <http:operation location="/LoginByGoogleId" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Execute">
+      <http:operation location="/Execute" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteEx">
+      <http:operation location="/ExecuteEx" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteWithTimeout">
+      <http:operation location="/ExecuteWithTimeout" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateSession">
+      <http:operation location="/UpdateSession" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="ChangePassword">
+      <http:operation location="/ChangePassword" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsEnabled">
+      <http:operation location="/IsEnabled" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="WebService">
+    <wsdl:port name="WebServiceSoap" binding="tns:WebServiceSoap">
+      <soap:address location="https://it.vodokanal.kiev.ua:44446/ws/webservice.asmx" />
+    </wsdl:port>
+    <wsdl:port name="WebServiceSoap12" binding="tns:WebServiceSoap12">
+      <soap12:address location="https://it.vodokanal.kiev.ua:44446/ws/webservice.asmx" />
+    </wsdl:port>
+    <wsdl:port name="WebServiceHttpGet" binding="tns:WebServiceHttpGet">
+      <http:address location="https://it.vodokanal.kiev.ua:44446/ws/webservice.asmx" />
+    </wsdl:port>
+    <wsdl:port name="WebServiceHttpPost" binding="tns:WebServiceHttpPost">
+      <http:address location="https://it.vodokanal.kiev.ua:44446/ws/webservice.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
