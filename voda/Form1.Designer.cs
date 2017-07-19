@@ -33,13 +33,6 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.num = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nak_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.val = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.date = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.unixtime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.vod_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nzav = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label1 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
@@ -48,6 +41,16 @@
             this.button7 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.label2 = new System.Windows.Forms.Label();
+            this.button8 = new System.Windows.Forms.Button();
+            this.button9 = new System.Windows.Forms.Button();
+            this.num = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nak_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.val = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.date = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.unixtime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.vod_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nzav = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.errors = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -91,61 +94,13 @@
             this.date,
             this.unixtime,
             this.vod_id,
-            this.nzav});
-            this.dataGridView1.Location = new System.Drawing.Point(69, 12);
+            this.nzav,
+            this.errors});
+            this.dataGridView1.Location = new System.Drawing.Point(12, 12);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.Size = new System.Drawing.Size(704, 208);
+            this.dataGridView1.Size = new System.Drawing.Size(761, 208);
             this.dataGridView1.TabIndex = 3;
-            // 
-            // num
-            // 
-            this.num.Frozen = true;
-            this.num.HeaderText = "num";
-            this.num.Name = "num";
-            this.num.ReadOnly = true;
-            // 
-            // nak_id
-            // 
-            this.nak_id.Frozen = true;
-            this.nak_id.HeaderText = "id";
-            this.nak_id.Name = "nak_id";
-            this.nak_id.ReadOnly = true;
-            // 
-            // val
-            // 
-            this.val.Frozen = true;
-            this.val.HeaderText = "val";
-            this.val.Name = "val";
-            this.val.ReadOnly = true;
-            // 
-            // date
-            // 
-            this.date.Frozen = true;
-            this.date.HeaderText = "date";
-            this.date.Name = "date";
-            this.date.ReadOnly = true;
-            // 
-            // unixtime
-            // 
-            this.unixtime.Frozen = true;
-            this.unixtime.HeaderText = "unixtime";
-            this.unixtime.Name = "unixtime";
-            this.unixtime.ReadOnly = true;
-            // 
-            // vod_id
-            // 
-            this.vod_id.Frozen = true;
-            this.vod_id.HeaderText = "vod_id";
-            this.vod_id.Name = "vod_id";
-            this.vod_id.ReadOnly = true;
-            // 
-            // nzav
-            // 
-            this.nzav.Frozen = true;
-            this.nzav.HeaderText = "nzav";
-            this.nzav.Name = "nzav";
-            this.nzav.ReadOnly = true;
             // 
             // label1
             // 
@@ -220,11 +175,89 @@
             this.label2.TabIndex = 10;
             this.label2.Text = "0";
             // 
+            // button8
+            // 
+            this.button8.Location = new System.Drawing.Point(779, 12);
+            this.button8.Name = "button8";
+            this.button8.Size = new System.Drawing.Size(97, 37);
+            this.button8.TabIndex = 11;
+            this.button8.Text = "Показать не выгруженные счетчики";
+            this.button8.UseVisualStyleBackColor = true;
+            this.button8.Click += new System.EventHandler(this.button8_Click);
+            // 
+            // button9
+            // 
+            this.button9.Location = new System.Drawing.Point(779, 56);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(97, 38);
+            this.button9.TabIndex = 12;
+            this.button9.Text = "Показать не в списке";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
+            // 
+            // num
+            // 
+            this.num.Frozen = true;
+            this.num.HeaderText = "num";
+            this.num.Name = "num";
+            this.num.ReadOnly = true;
+            // 
+            // nak_id
+            // 
+            this.nak_id.Frozen = true;
+            this.nak_id.HeaderText = "id";
+            this.nak_id.Name = "nak_id";
+            this.nak_id.ReadOnly = true;
+            // 
+            // val
+            // 
+            this.val.Frozen = true;
+            this.val.HeaderText = "val";
+            this.val.Name = "val";
+            this.val.ReadOnly = true;
+            // 
+            // date
+            // 
+            this.date.Frozen = true;
+            this.date.HeaderText = "date";
+            this.date.Name = "date";
+            this.date.ReadOnly = true;
+            // 
+            // unixtime
+            // 
+            this.unixtime.Frozen = true;
+            this.unixtime.HeaderText = "unixtime";
+            this.unixtime.Name = "unixtime";
+            this.unixtime.ReadOnly = true;
+            // 
+            // vod_id
+            // 
+            this.vod_id.Frozen = true;
+            this.vod_id.HeaderText = "vod_id";
+            this.vod_id.Name = "vod_id";
+            this.vod_id.ReadOnly = true;
+            // 
+            // nzav
+            // 
+            this.nzav.Frozen = true;
+            this.nzav.HeaderText = "nzav";
+            this.nzav.Name = "nzav";
+            this.nzav.ReadOnly = true;
+            // 
+            // errors
+            // 
+            this.errors.Frozen = true;
+            this.errors.HeaderText = "Errors";
+            this.errors.Name = "errors";
+            this.errors.ReadOnly = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(902, 452);
+            this.Controls.Add(this.button9);
+            this.Controls.Add(this.button8);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.button7);
             this.Controls.Add(this.button6);
@@ -249,13 +282,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn num;
-        private System.Windows.Forms.DataGridViewTextBoxColumn nak_id;
-        private System.Windows.Forms.DataGridViewTextBoxColumn val;
-        private System.Windows.Forms.DataGridViewTextBoxColumn date;
-        private System.Windows.Forms.DataGridViewTextBoxColumn unixtime;
-        private System.Windows.Forms.DataGridViewTextBoxColumn vod_id;
-        private System.Windows.Forms.DataGridViewTextBoxColumn nzav;
         private System.Windows.Forms.Label label1;
         public System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.Button button3;
@@ -265,6 +291,16 @@
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.Button button9;
+        private System.Windows.Forms.DataGridViewTextBoxColumn num;
+        private System.Windows.Forms.DataGridViewTextBoxColumn nak_id;
+        private System.Windows.Forms.DataGridViewTextBoxColumn val;
+        private System.Windows.Forms.DataGridViewTextBoxColumn date;
+        private System.Windows.Forms.DataGridViewTextBoxColumn unixtime;
+        private System.Windows.Forms.DataGridViewTextBoxColumn vod_id;
+        private System.Windows.Forms.DataGridViewTextBoxColumn nzav;
+        private System.Windows.Forms.DataGridViewTextBoxColumn errors;
     }
 }
 

@@ -58,6 +58,26 @@ namespace voda
 
         }
 
+        public class ErrorData
+        {
+            /// <summary>
+            /// Уникальный номер места размещения счетчика.
+            /// </summary>
+            public int ID;
+            /// <summary>
+            /// Цифровой номер ошибки из справочника
+            /// </summary>
+            public int ERR_NO;
+            /// <summary>
+            /// Время в формате UNIXTIME.
+            /// </summary>
+            public int UNIXTIME;
+            /// <summary>
+            /// //Заводской номер счетчика.
+            /// </summary>
+            public string NZAV;
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -79,6 +99,7 @@ namespace voda
 
         public static List<int[]> idList = new List<int[]>();
         public static List<CounterData> ToSend = new List<CounterData>();
+        public static List<ErrorData> ErrorsToSend= new List<ErrorData>();
         public static List<int> duplicateList = new List<int>();
 
         private void button1_Click(object sender, EventArgs e)
@@ -104,6 +125,7 @@ namespace voda
                             string fullPath = openFileDialog1.FileName;
                             string fileName = openFileDialog1.SafeFileName;
                             xml_parse(fullPath);
+                            FoundNotConnected();
                         }
                     }
                 }
@@ -149,19 +171,73 @@ namespace voda
                                     dataGridView1[2, row].Value = mbus.normval;
                                     dataGridView1[3, row].Value = mbus.m_date;
                                     dataGridView1[4, row].Value = ConvertToUnixTime(dt);
+
+                                    
+
                                     int[] idrow = FindIds(mbus.id);
                                     if (idrow[0] != 0)
                                     {
                                         dataGridView1[5, row].Value = idrow[2];
                                         dataGridView1[6, row].Value = idrow[1];
-
+                                        double m3val =(double) mbus.normval/1000;
+                                        //Debug.WriteLine(m3val);
                                         ToSend.Add(new CounterData()
                                         {
                                             ID = idrow[2],
                                             UNIXTIME = ConvertToUnixTime(dt),
-                                            POKAZ = mbus.normval,
+                                            POKAZ = m3val,//mbus.normval,
                                             NZAV = Convert.ToString(idrow[1])
                                         });
+
+                                        //Блок ошибок (вывод в таблицу)
+                                        string show_errors = String.Empty;
+                                        List<int> error_list = new List<int>(mbus.errors_decoded_apt);
+                                        //Debug.WriteLine(mbus.errors_decoded_apt.Count);
+                                        //Debug.WriteLine(error_list.Count);
+
+                                        //Debugger.Break();
+                                        //
+
+                                        foreach (int err in error_list)
+                                        {
+                                            //Debug.WriteLine(err);
+                                            switch (err)
+                                            {
+                                                case 1:
+                                                    show_errors = show_errors + 1 + ",";
+                                                    ErrorsToSend.Add(new ErrorData
+                                                    {
+                                                        ID = idrow[2],
+                                                        UNIXTIME = ConvertToUnixTime(dt),
+                                                        NZAV = Convert.ToString(idrow[1]),
+                                                        ERR_NO = 1
+                                                    });
+                                                    break;
+                                                case 4:
+                                                    show_errors += 2 + ",";
+                                                    ErrorsToSend.Add(new ErrorData
+                                                    {
+                                                        ID = idrow[2],
+                                                        UNIXTIME = ConvertToUnixTime(dt),
+                                                        NZAV = Convert.ToString(idrow[1]),
+                                                        ERR_NO = 2
+                                                    });
+                                                    //Debugger.Break();
+                                                    break;
+                                                case 64:
+                                                    show_errors += 3 + ",";
+                                                    ErrorsToSend.Add(new ErrorData
+                                                    {
+                                                        ID = idrow[2],
+                                                        UNIXTIME = ConvertToUnixTime(dt),
+                                                        NZAV = Convert.ToString(idrow[1]),
+                                                        ERR_NO = 3
+                                                    });
+                                                    break;
+                                            }
+                                        }
+                                        dataGridView1[7, row].Value = show_errors;
+                                        //--------------------------------------------------
                                     }
                                     row++;
                                 }
@@ -255,11 +331,15 @@ namespace voda
             richTextBox1.AppendText(text + Environment.NewLine);
         }
 
-        public static int[] FindIds(int m_id)
+        public static int[] FindIds(int m_id,bool debug=false)
         {
             for (int i = 0; i < idList.Count; i++)
             {
                 if (idList[i][0]==m_id) {
+                    if (debug)
+                    {
+                        Debugger.Break();
+                    }
                     return idList[i];
                 }
             }
@@ -281,7 +361,17 @@ namespace voda
                 richTextBox1.AppendText(val.UNIXTIME.ToString() + Environment.NewLine);
                 richTextBox1.AppendText("<!---Конец пакета-->"+Environment.NewLine);
             }
+
             ToConsole(ToSend.Count.ToString());
+            richTextBox1.AppendText("Блок ошибок" + Environment.NewLine);
+            foreach (ErrorData err in ErrorsToSend) {
+                richTextBox1.AppendText("<!---Начало пакета-->" + Environment.NewLine);
+                richTextBox1.AppendText(err.ID.ToString() + Environment.NewLine);
+                richTextBox1.AppendText(err.NZAV.ToString() + Environment.NewLine);
+                richTextBox1.AppendText(err.ERR_NO.ToString() + Environment.NewLine);
+                richTextBox1.AppendText(err.UNIXTIME.ToString() + Environment.NewLine);
+                richTextBox1.AppendText("<!---Конец пакета-->" + Environment.NewLine);
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -302,6 +392,7 @@ namespace voda
         private void clear_all_data() {
             duplicateList.Clear();
             ToSend.Clear();
+            ErrorsToSend.Clear();
             mbus.readerrors = 0;
             dataGridView1.Rows.Clear();
             row = 0;
@@ -309,12 +400,15 @@ namespace voda
 
         private void button5_Click(object sender, EventArgs e)
         {
-            SendToVodokanal();
+            //SendToVodokanal();
+            //string data = "6856566808CF729254090001060307D27800000C7892540900046D022C3426041353000000023B0000441353000000426C21260227890003FD170E030804FF0A0201040002FF0B905803FF0C0A00BD0F00030D24FF00020201075216";
+            //mbus.telegram_decode(data);
+            getVodokanalErrors();
         }
 
         private bool SendToVodokanal() {
-            string login = "qwerty";
-            string password = "123456";
+            string login = "vertical";
+            string password = "Lacitrev";
 
             // Упаковщик в формат JSON
             var serializer = new JavaScriptSerializer();
@@ -358,6 +452,15 @@ namespace voda
 
                 //Успешность передачи данных
                 success = (bool)answer["SUCCESS"];
+
+                if (ErrorsToSend.Count > 0) {
+                    var err_dict = new Dictionary<string, object>();
+                    err_dict.Add("jsons",ErrorsToSend);
+                    string JsonErrorResult = serializer.Serialize(err_dict);
+                    var JsonErrorAnswer = webClient.ExecuteEx("_ACCXB.ADDERRORVALUES", JsonErrorResult,ticket);
+                    var err_answer= (Dictionary<string, object>)serializer.Deserialize(JsonErrorAnswer, typeof(Dictionary<string, object>));
+                    success = (bool)err_answer["SUCCESS"];
+                }
                 return success;
             }
             else{
@@ -365,13 +468,48 @@ namespace voda
             }
         }
 
+        private void getVodokanalErrors()
+        {
+            string login = "vertical";
+            string password = "Lacitrev";
+
+            // Упаковщик в формат JSON
+            var serializer = new JavaScriptSerializer();
+
+            // Клиент web-сервиса
+            var webClient = new VodokanalService.WebServiceSoapClient("WebServiceSoap");
+            // Выполнить проверку логина и пароля
+            var loginRequstJson = webClient.LoginEx(login, password);
+
+            // Вывести результат к консоль
+            Console.WriteLine(loginRequstJson);
+
+            // Распаковать строку с результатами аутентификации
+            var loginRequest = (Dictionary<string, object>)serializer.Deserialize(loginRequstJson, typeof(Dictionary<string, object>));
+
+            // Успешность аутентификации
+            bool success = (bool)loginRequest["Success"];
+
+
+            if (success)
+            {
+                string ticket = (string)loginRequest["Ticket"];
+                var JsonAnswer = webClient.ExecuteEx("_ACCXB.GETERRORS", null, ticket);
+                //Смотрим что пришло
+                var answer = (Dictionary<string, object>)serializer.Deserialize(JsonAnswer, typeof(Dictionary<string, object>));
+                foreach (var item in answer) {
+                    ToConsole(item.ToString());
+                }
+            }
+       }
+
         private void button6_Click(object sender, EventArgs e)
         {
             Process_Data();
             button7.Enabled = true;
             button6.Enabled = false;
             label2.Text = "0";
-            timer1.Interval = 60000;
+            timer1.Interval = 3600000;
             timer1.Start();
         }
 
@@ -381,13 +519,18 @@ namespace voda
             string[] filenames = ftp_list_last();
             foreach (string filename in filenames)
             {
-                ToConsole(filename);
-                if (ftp_download(filename))
+                if (filename != "" && filename!=String.Empty && filename!=null)
                 {
-                    string fullpath = System.IO.Directory.GetCurrentDirectory() + "\\" + filename;
-                    xml_parse(fullpath);
+                    //Debug.WriteLine(filename);
+                    ToConsole(filename);
+                    if (ftp_download(filename))
+                    {
+                        string fullpath = System.IO.Directory.GetCurrentDirectory() + "\\" + filename;
+                        xml_parse(fullpath);
+                    }
                 }
             }
+            FoundNotConnected();
             ToConsole("Сформировано данных по "+ToSend.Count()+" счетчикам");
             if (!test_mode)
             {
@@ -418,28 +561,35 @@ namespace voda
                 {
                     list = reader.ReadToEnd().Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                 }
-                int[] lastfile = new int[2];
-                string[] last = new string[2];
+                int[] lastfile = new int[3];
+                string[] last = new string[3];
                 foreach (string l_item in list)
                 {
                     string val = l_item.Replace(" ", "");
                     string[] name = val.Split(':');
-
+                    name[1] = name[1].Remove(0,2);
                     if ((name[1].IndexOf("0080A3B46769") > -1) && (name[1].IndexOf(".xml") > -1))
                     {
                         string[] f_name = name[1].Trim().Split('_');
 
-                        //Debug.WriteLine();
+
                         if (lastfile[0] != null)
                         {
                             if (Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4)) > lastfile[0])
                             {
-                                lastfile[0] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+
+                                if (isRDY(list, name[1]))
+                                {
+                                    lastfile[0] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                                }
                             }
                         }
                         else
                         {
-                            lastfile[0] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                            if (isRDY(list, name[1]))
+                            {
+                                lastfile[0] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                            }
                         }
 
                     }
@@ -450,20 +600,51 @@ namespace voda
                         {
                             if (Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4)) > lastfile[1])
                             {
-                                lastfile[1] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                                if (isRDY(list, name[1]))
+                                {
+                                    lastfile[1] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                                }
                             }
                         }
                         else
                         {
-                            lastfile[1] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                            if (isRDY(list, name[1]))
+                            {
+                                lastfile[1] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                            }
                         }
                     }
+                    /*else if ((name[1].IndexOf("0080A3B82B12") > -1) && (name[1].IndexOf(".xml") > -1))
+                    {
+                        string[] f_name = name[1].Trim().Split('_');
+                        if (lastfile[1] != null)
+                        {
+                            if (Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4)) > lastfile[1])
+                            {
+                                if (isRDY(list, name[1]))
+                                {
+                                    lastfile[2] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (isRDY(list, name[1]))
+                            {
+                                lastfile[2] = Int32.Parse(f_name[1].Remove(f_name[1].Length - 4, 4));
+                            }
+                        }
+                    }*/
                     //ToConsole(name[1]);
                 }
                 //ToConsole(lastfile[0].ToString());
-                last[0] = "0080A3B46769_" + lastfile[0].ToString().PadLeft(3,'0') + ".xml";
+                //last[0] = "0080A3B462CA_" + lastfile[0].ToString().PadLeft(3,'0') + ".xml";
+                last[0] = "0080A3B46769_" + lastfile[0].ToString().PadLeft(3, '0') + ".xml";
                 //ToConsole(lastfile[1].ToString());
-                last[1] = "0080A3B82B1E_" + lastfile[1].ToString().PadLeft(3,'0') + ".xml";
+                //last[1] = "0080A3B46770_" + lastfile[1].ToString().PadLeft(3,'0') + ".xml";
+                last[1] = "0080A3B82B1E_" + lastfile[1].ToString().PadLeft(3, '0') + ".xml";
+                //ToConsole(lastfile[2].ToString());
+                //last[2] = "0080A3B82B12_" + lastfile[2].ToString().PadLeft(3,'0') + ".xml";
                 return last;
             }
             catch (Exception ex) {
@@ -543,6 +724,92 @@ namespace voda
             timer1.Stop();
             button7.Enabled = false;
             button6.Enabled = true;
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            List<string> notFound = new List<string>();
+            for (int i = 0; i < idList.Count; i++) {
+                bool found = false;
+                for (int j = 0; j < dataGridView1.RowCount; j++) {
+                    if (idList[i][0].ToString() == dataGridView1[1,j].Value.ToString()) {
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    notFound.Add(idList[i][0].ToString());
+                }
+            }
+            foreach (string not in notFound) {
+                ToConsole(not);
+            }
+        }
+
+        private void FoundNotConnected() {
+            List<string> notFound = new List<string>();
+            for (int i = 0; i < idList.Count; i++)
+            {
+                bool found = false;
+                for (int j = 0; j < dataGridView1.RowCount; j++)
+                {
+                    if (idList[i][0].ToString() == dataGridView1[1, j].Value.ToString())
+                    {
+                        found = true;
+                    }
+                }
+                if (!found)
+                {
+                    notFound.Add(idList[i][0].ToString());
+                }
+            }
+            foreach (string not in notFound)
+            {
+                ToConsole(not);
+                int[] idrow = FindIds(Convert.ToInt32(not));
+                if (idrow[0] != 0)
+                {
+                    ErrorsToSend.Add(new ErrorData
+                    {
+                        UNIXTIME = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds,
+                        ID = idrow[2],
+                        NZAV = idrow[1].ToString(),
+                        ERR_NO = 4
+                    });
+                    //Debugger.Break();
+                }
+            }
+            //Debugger.Break();
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            List<string> notFound = new List<string>();
+            for (int i = 0; i < dataGridView1.RowCount; i++) {
+                bool found = false;
+                Debug.WriteLine(i);
+                foreach (CounterData data in ToSend) {
+                    /*if (data.ID.ToString() == dataGridView1[5, i].Value.ToString()) {
+                        found = true;
+                    }*/
+                }
+                /*if (!found) {
+                    notFound.Add(dataGridView1[5,i].Value.ToString());
+                }*/
+            }
+            foreach (string not in notFound) {
+                ToConsole(not);
+            }
+        }
+
+        private bool isRDY(string[] list, string filename) {
+            string rdyname = filename.Replace("xml","rdy");
+            //Debug.WriteLine(rdyname);
+            foreach (string item in list) {
+                if (item.IndexOf(rdyname)>-1){
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

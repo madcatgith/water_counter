@@ -24,6 +24,7 @@ namespace voda
             public int normval { get; set; }
             public int id { get; set; }
             public string m_date { get; set; }
+            public List<int> errors_decoded_apt { get; set; }
 
         //Телеграмма
         public class mbus_telegram {
@@ -75,6 +76,7 @@ namespace voda
         //Примитивная раскодировка телеграммы без разбития на части
         public bool decodeTelegram(string data)
         {
+            //errors_decoded_apt.Clear();
             byte[] byteData = StringToByteArray(data);
             var mbus_header = new byte[4];
             var mbus_afterhead = new byte[3];
@@ -101,11 +103,15 @@ namespace voda
                     }
 
                 }
-                //debugHex(mbus_id.Reverse().ToArray());
+                //debugHex(mbus_id);
                 id = Convert.ToInt32(BitConverter.ToString(mbus_id.Reverse().ToArray()).Replace("-", String.Empty));
                 //Debug.WriteLine(id);
                 if (validateMan(new byte[] { byteData[11], byteData[12] }))
                 {
+                    //debugHex(byteData);
+                    errors_decoded_apt=new List<int>(decode_error_apt(byteData));
+                    //Debugger.Break();
+                    //Debug.WriteLine(errors_decoded_apt.Count);
                     byte[] val = new byte[] { byteData[33], byteData[34], byteData[35], byteData[36] };
                     normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty), 16);
                     return true;
@@ -114,18 +120,34 @@ namespace voda
                 {
                     if (mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }) == "INV")
                     {
+                        //debugHex(byteData);
+                        errors_decoded_apt = new List<int>(decode_error_sens(byteData));
                         byte[] val = new byte[4];
                         Array.Copy(byteData, byteData.Length - 6, val, 0, 4);
                         normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty));
                         return true;
                     }
+                    else if(mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }) == "APT")
+                    {
+                        debugHex(byteData);
+                        //errors_decoded_apt = new List<int>(decode_error_apt(byteData));
+                        errors_decoded_apt = new List<int>();
+                        byte[] val = new byte[4];
+                        Array.Copy(byteData, 57, val, 0, 4);
+                        normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty));
+                        //Debug.WriteLine("APT VAL^^::"+normval);
+                        //debugHex(byteData);
+                        //debugHex(val);
+                        return true;
+                    }
                     else
                     {
+                        errors_decoded_apt = new List<int>();
                         readerrors++;
                         Debug.WriteLine("manufacturer error");
                         Debug.WriteLine(mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }));
                         Debug.WriteLine(id);
-                        debugHex(byteData);
+                        //debugHex(byteData);
                         return false;
                     }
                 }
@@ -137,6 +159,64 @@ namespace voda
                 Debug.WriteLine("header error");
                 return false;
             }
+        }
+
+        //-----------------------------------------------------------------------
+
+        //Раскодировка ошибок
+        private List<int> decode_error_apt(byte[] data) {
+            int[] apt_errors = new int[] { 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1};
+            string s_data = BitConverter.ToString(data).Replace("-", String.Empty);
+            byte[] errors = new byte[3];
+            int[] errors_encode = new int[2];
+            int start_error = s_data.IndexOf("FD17");
+            List<int> found_errors = new List<int>();
+            //Debug.WriteLine(s_data);
+            if (start_error > -1)
+            {
+                Array.Copy(data, start_error / 2 + 2, errors, 0, 3);
+                string s_err = BitConverter.ToString(errors).Replace("-", String.Empty);
+                //Debug.WriteLine(s_err);
+                errors_encode[0] = Convert.ToInt32(s_err.Substring(0, 3), 16);
+                errors_encode[1] = Convert.ToInt32(s_err.Substring(3, 3), 16);
+                //Debug.WriteLine(s_err.Substring(0, 3) + " | " + s_err.Substring(3, 3));
+                //Debug.WriteLine(errors_encode[0] + " | " + errors_encode[1]);
+                int temp = errors_encode[1];
+                for (int i = 0; i < apt_errors.Length; i++)
+                {
+                    if (temp - apt_errors[i] > -1)
+                    {
+                        temp = temp - apt_errors[i];
+                        found_errors.Add(apt_errors[i]);
+                    }
+                }
+                /*foreach (int val in found_errors)
+                {
+                    Debug.WriteLine(val + "-error");
+                }*/
+                return found_errors;
+            }
+            else {
+                return new List<int>();
+            }
+        }
+
+        private List<int> decode_error_sens(byte[] data) {
+            string s_data = BitConverter.ToString(data).Replace("-", String.Empty);
+            int start_error = s_data.IndexOf("0C78");
+            byte error_flag=0x00;
+            if (start_error > -1) {
+                error_flag=data[start_error / 2 - 3];
+                //Debug.WriteLine(error_flag.ToString("X"));
+                if (error_flag != 0x00)
+                {
+                    return new List<int>() {4};
+                }
+                else {
+                    return new List<int>();
+                }
+            }
+            return new List<int>();
         }
         //-----------------------------------------------------------------------
 
@@ -186,7 +266,55 @@ namespace voda
         }
 
         public void mbus_decode_data(mbus_telegram telegram) {
+            byte dif;
+            byte[] dife = new byte[10];
+            byte vif;
+            byte[] vife = new byte[10];
+            byte[] data;
+            bool start = true;
+
+            mbus_decoded decode = new mbus_decoded();
+            int num = 0;
+            int add_counter = 0;
+            dif=telegram.data_part[num];
+            while (has_next_data(dif))
+            {
+                num++;
+                dife[add_counter] = telegram.data_part[num];
+                add_counter++;   
+            }
+            add_counter = 0;
+            num++;
+            vif = telegram.data_part[num];
+            if (has_next_data(vif)) {
+                num++;
+                vife[add_counter] = telegram.data_part[num];
+                add_counter++;
+            }
+            int length=get_data_lenght(dif);
+
+            //debugHex(telegram.data_part);
+            
             //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        }
+
+        //Проверка наличие следующего бита
+        private bool has_next_data(byte val)
+        {
+            string binary = Convert.ToString(val, 2).PadLeft(8, '0');
+            if (binary[0] == '0')
+            {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        private int get_data_lenght(byte dif)
+        {
+            string binary = Convert.ToString(dif, 2).PadLeft(8, '0');
+            return 1;
         }
 
         //Проверка правильности заголовка
