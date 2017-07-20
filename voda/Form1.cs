@@ -10,7 +10,6 @@ using System.Xml;
 using System.IO;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Net;
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
@@ -403,7 +402,15 @@ namespace voda
             //SendToVodokanal();
             //string data = "6856566808CF729254090001060307D27800000C7892540900046D022C3426041353000000023B0000441353000000426C21260227890003FD170E030804FF0A0201040002FF0B905803FF0C0A00BD0F00030D24FF00020201075216";
             //mbus.telegram_decode(data);
-            getVodokanalErrors();
+            //getVodokanalErrors();
+            ftp ftp = new ftp();
+            ftp.ftp_options options= new ftp.ftp_options();
+            options.host = "176.111.58.218";
+            options.login = "water_counter";
+            options.password = "WATERcounter";
+            options.path = "test_my";
+            ftp.get_last_files(ftp.file_list(options), ftp.get_files_list(options));
+            //ftp.get_files_list(options);
         }
 
         private bool SendToVodokanal() {
@@ -810,6 +817,12 @@ namespace voda
                 }
             }
             return false;
+        }
+
+        private void настройкиToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Form2 option_form = new Form2();
+            option_form.Show();
         }
     }
 }
