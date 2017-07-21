@@ -24,6 +24,11 @@ namespace voda
             public int error_status { get; set; }
         }
 
+        public class ftp_download {
+            public string filename { get; set; }
+            public bool transfer_succ { get; set; }
+        }
+
         public List<string> file_list(ftp_options options) {
             if (check_connection(options).no_error) {
                 try
@@ -164,8 +169,6 @@ namespace voda
 
         public List<string> get_last_files(List<string> files,List<string[]> list)
         {
-            List<string[]> xml = new List<string[]>();
-            List<string[]> rdy = new List<string[]>();
             DateTime start = DateTime.ParseExact("00:00 01 Dec 2016", "HH:mm dd MMM yyyy",CultureInfo.InvariantCulture);
 
             if (list.Count > 0 && files.Count>0) {
@@ -177,11 +180,7 @@ namespace voda
                 }
 
                 foreach (string[] item in list) {
-                    /*if (item[0].IndexOf(".rdy")>-1) {
-                        rdy.Add(item);
-                    }*/
                     if (item[0].IndexOf(".xml")>-1) {
-                        //xml.Add(item);
                         int counter = 0;
                         if (list.FindIndex(x=>x[0]==item[0].Replace(".xml",".rdy"))>-1) {
                             foreach (string filename in files)
@@ -201,9 +200,86 @@ namespace voda
                         }
                     }
                 }
-                Debugger.Break();
+                //Debugger.Break();
+                return latest_files.ToList();
             }
             return new List<string>();
+        }
+
+        public List<ftp_download> download_files(List<string> files, ftp_options options, string save_path="archive/")
+        {
+            List<ftp_download> status = new List<ftp_download>();
+            foreach (string file in files)
+            {
+                ftp_download file_satus = new ftp_download();
+                file_satus.filename = file;
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://"+options.host+"/"+options.path.Trim('/',' ')+"/"+ file);
+                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+                string username = options.login;
+                string password = options.password;
+                request.Credentials = new NetworkCredential(username.Normalize(), password.Normalize());
+
+                // устанавливаем метод на загрузку файлов
+                request.Method = WebRequestMethods.Ftp.DownloadFile;
+
+                // создаем поток для загрузки файла
+                if (File.Exists(save_path+file))
+                {
+                    // Note that no lock is put on the
+                    // file and the possibility exists
+                    // that another process could do
+                    // something with it between
+                    // the calls to Exists and Delete.
+                    File.Delete(save_path+file);
+                }
+
+                if (!Directory.Exists(save_path)) {
+                    DirectoryInfo di = Directory.CreateDirectory(save_path);
+                }
+
+                try
+                {
+
+                    FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                    Stream ftpStream = response.GetResponseStream();
+
+                    FileStream localFileStream = new FileStream(save_path + file, FileMode.Create);
+                    int bufferSize = 2048;
+                    byte[] byteBuffer = new byte[bufferSize];
+                    int bytesRead = ftpStream.Read(byteBuffer, 0, bufferSize);
+                    while (bytesRead > 0)
+                    {
+                        localFileStream.Write(byteBuffer, 0, bytesRead);
+                        bytesRead = ftpStream.Read(byteBuffer, 0, bufferSize);
+                    }
+
+                    localFileStream.Close();
+                    ftpStream.Close();
+                    response.Close();
+                    request = null;
+
+                    // получаем ответ от сервера в виде объекта FtpWebResponse
+                    //FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+                    //ToConsole("Загрузка файлов завершена. Статус: " + response.StatusDescription);
+                    Debug.WriteLine(response.StatusDescription);
+                    if (response.StatusDescription.IndexOf("226") > -1)
+                    {
+                        file_satus.transfer_succ = true;
+                    }
+                    else
+                    {
+                        file_satus.transfer_succ = false;
+                    }
+                    status.Add(file_satus);
+                }
+
+                catch (Exception e) {
+                    Debug.WriteLine(e);
+                    file_satus.transfer_succ = false;
+                }
+            }
+            return status;
         }
     }
 }

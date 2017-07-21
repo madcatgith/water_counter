@@ -14,17 +14,31 @@ namespace voda
     {
         IniFile INI = new IniFile("config.ini");
         string path = AppDomain.CurrentDomain.BaseDirectory;
+        Form1 main_form;
+
+        bool DataSaved = false;
 
         public Form2()
         {
             InitializeComponent();
             read_settings();
             uncheck_all();
+            DataSaved = true;
+        }
+
+        public Form2(Form1 main)
+        {
+            InitializeComponent();
+            main_form = main;
+            read_settings();
+            uncheck_all();
+            DataSaved = true;
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             save_settings();
+            main_form.InitializeProperties();
         }
 
         private void save_settings() {
@@ -39,6 +53,10 @@ namespace voda
             INI.Write("KVK","Password",vpassword_textBox.Text.ToString());
             INI.Write("KVK","Interval",time_interval.Text.ToString());
 
+            //Опции
+            INI.Write("Setup", "IdPath", idlist_path.Text.ToString());
+
+            DataSaved = true;
         }
 
         private void read_settings() {
@@ -72,26 +90,38 @@ namespace voda
             {
                 time_interval.Text = INI.ReadINI("KVK", "Interval");
             }
+
+            //Другие опции
+            if (INI.KeyExists("IdPath", "Setup"))
+            {
+                idlist_path.Text = INI.ReadINI("Setup", "IdPath");
+            }
         }
 
         private void Form2_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = false;
-            var dlgResult = MessageBox.Show("Сохранить настройки перед выходом?", "", MessageBoxButtons.YesNoCancel,MessageBoxIcon.Question);
-            
-            if (dlgResult == System.Windows.Forms.DialogResult.No)
+            if (!DataSaved)
             {
-                //this.Close();
+                var dlgResult = MessageBox.Show("Сохранить настройки перед выходом?", "", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
+                if (dlgResult == System.Windows.Forms.DialogResult.No)
+                {
+                    main_form.InitializeProperties();
+                }
+                if (dlgResult == DialogResult.Yes)
+                {
+                    save_settings();
+                    main_form.InitializeProperties();
+                }
+                if (dlgResult == DialogResult.Cancel)
+                {
+                    e.Cancel = true;
+                }
             }
-            if (dlgResult == DialogResult.Yes)
-            {
-                save_settings();
-                //this.Close();
-            }
-            if (dlgResult == DialogResult.Cancel)
-            {
-                e.Cancel = true;
-            }
+        }
+
+        private void show_main_form() {
             
         }
 
@@ -134,6 +164,61 @@ namespace voda
             pictureBox2.ImageLocation = path + "\\img\\cross.png";
             pictureBox3.ImageLocation = path + "\\img\\cross.png";
             pictureBox4.ImageLocation = path + "\\img\\cross.png";
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+
+            openFileDialog1.InitialDirectory = path;
+            openFileDialog1.Filter = "txt files (*.txt)|*.txt";
+            openFileDialog1.FilterIndex = 2;
+            openFileDialog1.RestoreDirectory = true;
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                idlist_path.Text = openFileDialog1.FileName;
+            }
+        }
+
+        private void host_textBox_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void ftplogin_textBox_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void ftppassword_textBox_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void folder_textBox_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void vlogin_textBox_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void vpassword_textBox_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void time_interval_ValueChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void idlist_path_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
         }
     }
 }

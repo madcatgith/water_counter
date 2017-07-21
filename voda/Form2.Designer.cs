@@ -57,6 +57,8 @@
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.idlist_path = new System.Windows.Forms.TextBox();
+            this.button3 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -78,6 +80,7 @@
             this.ftplogin_textBox.Name = "ftplogin_textBox";
             this.ftplogin_textBox.Size = new System.Drawing.Size(100, 20);
             this.ftplogin_textBox.TabIndex = 1;
+            this.ftplogin_textBox.TextChanged += new System.EventHandler(this.ftplogin_textBox_TextChanged);
             // 
             // label2
             // 
@@ -94,6 +97,7 @@
             this.ftppassword_textBox.Name = "ftppassword_textBox";
             this.ftppassword_textBox.Size = new System.Drawing.Size(100, 20);
             this.ftppassword_textBox.TabIndex = 3;
+            this.ftppassword_textBox.TextChanged += new System.EventHandler(this.ftppassword_textBox_TextChanged);
             // 
             // host_textBox
             // 
@@ -101,6 +105,7 @@
             this.host_textBox.Name = "host_textBox";
             this.host_textBox.Size = new System.Drawing.Size(100, 20);
             this.host_textBox.TabIndex = 4;
+            this.host_textBox.TextChanged += new System.EventHandler(this.host_textBox_TextChanged);
             // 
             // label3
             // 
@@ -117,6 +122,7 @@
             this.folder_textBox.Name = "folder_textBox";
             this.folder_textBox.Size = new System.Drawing.Size(100, 20);
             this.folder_textBox.TabIndex = 6;
+            this.folder_textBox.TextChanged += new System.EventHandler(this.folder_textBox_TextChanged);
             // 
             // label4
             // 
@@ -232,6 +238,7 @@
             this.vlogin_textBox.Name = "vlogin_textBox";
             this.vlogin_textBox.Size = new System.Drawing.Size(100, 20);
             this.vlogin_textBox.TabIndex = 19;
+            this.vlogin_textBox.TextChanged += new System.EventHandler(this.vlogin_textBox_TextChanged);
             // 
             // vpassword_textBox
             // 
@@ -239,6 +246,7 @@
             this.vpassword_textBox.Name = "vpassword_textBox";
             this.vpassword_textBox.Size = new System.Drawing.Size(100, 20);
             this.vpassword_textBox.TabIndex = 20;
+            this.vpassword_textBox.TextChanged += new System.EventHandler(this.vpassword_textBox_TextChanged);
             // 
             // label13
             // 
@@ -258,6 +266,7 @@
             this.time_interval.ShowUpDown = true;
             this.time_interval.Size = new System.Drawing.Size(100, 20);
             this.time_interval.TabIndex = 22;
+            this.time_interval.ValueChanged += new System.EventHandler(this.time_interval_ValueChanged);
             // 
             // label14
             // 
@@ -306,11 +315,31 @@
             this.pictureBox4.TabIndex = 27;
             this.pictureBox4.TabStop = false;
             // 
+            // idlist_path
+            // 
+            this.idlist_path.Location = new System.Drawing.Point(396, 175);
+            this.idlist_path.Name = "idlist_path";
+            this.idlist_path.Size = new System.Drawing.Size(126, 20);
+            this.idlist_path.TabIndex = 28;
+            this.idlist_path.TextChanged += new System.EventHandler(this.idlist_path_TextChanged);
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(528, 173);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(26, 23);
+            this.button3.TabIndex = 29;
+            this.button3.Text = "...";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(606, 406);
+            this.Controls.Add(this.button3);
+            this.Controls.Add(this.idlist_path);
             this.Controls.Add(this.pictureBox4);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.pictureBox2);
@@ -382,5 +411,7 @@
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.PictureBox pictureBox4;
+        private System.Windows.Forms.TextBox idlist_path;
+        private System.Windows.Forms.Button button3;
     }
 }

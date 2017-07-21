@@ -19,6 +19,22 @@ namespace voda
 {
     public partial class Form1 : Form
     {
+        IniFile INI = new IniFile("config.ini");
+        string path = AppDomain.CurrentDomain.BaseDirectory;
+
+        ftp ftp = new ftp();
+        ftp.ftp_options options = new ftp.ftp_options();
+
+        string idlistpath=String.Empty;
+
+        VodokanalAuth v_options = new VodokanalAuth();
+
+        bool LoadedValidList = false;
+        /*options.host = "176.111.58.218";
+        options.login = "water_counter";
+        options.password = "WATERcounter";
+        options.path = "test_my";*/
+
         public class CounterData
 
         {
@@ -77,14 +93,17 @@ namespace voda
             public string NZAV;
         }
 
+        public class VodokanalAuth
+        {
+            public string login { get; set; }
+            public string password { get; set; }
+            public string interval { get; set; }
+        }
+
         public Form1()
         {
             InitializeComponent();
-            ReadIdFile("idlist.txt");
-            //dataGridView1.ColumnCount = 3;
-            /*dataGridView1[0,0].Value = "id";
-            dataGridView1[1,0].Value = "val";
-            dataGridView1[2,0].Value = "date";*/
+            InitializeProperties();
         }
 
         public Mbus mbus = new Mbus();
@@ -100,6 +119,20 @@ namespace voda
         public static List<CounterData> ToSend = new List<CounterData>();
         public static List<ErrorData> ErrorsToSend= new List<ErrorData>();
         public static List<int> duplicateList = new List<int>();
+
+        public void InitializeProperties() {
+            clear_all_data();
+            read_settings();
+            idList.Clear();
+            richTextBox1.Clear();
+            if (idlistpath != String.Empty)
+            {
+                if (File.Exists(idlistpath))
+                    LoadedValidList = ReadIdFile(idlistpath);
+                if (!LoadedValidList)
+                    ToConsole("Список идентификаторов не загружен!!!");
+            }
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -296,27 +329,37 @@ namespace voda
             return (int)(datetime.ToUniversalTime() - sTime).TotalSeconds;
         }
 
-        public void ReadIdFile(string path) {
+        public bool ReadIdFile(string path) {
             int counter = 0;
             string line;
 
-            StreamReader file =
-            new StreamReader(path);
-            while ((line = file.ReadLine()) != null)
+            try
             {
-                
-                string[] line_array=line.Split('=');
-                int[] idrow = new int[3];
-                for (int i=0;i<3;i++) {
-                    idrow[i] = Int32.Parse(line_array[i].Replace("=",String.Empty));
-                }
-                idList.Add(idrow);
-                counter++;
-            }
 
-            file.Close();
-            Debug.WriteLine("List Imported");
-            ToConsole("Список идентефикаторов загружен");
+                StreamReader file =
+                new StreamReader(path);
+                while ((line = file.ReadLine()) != null)
+                {
+
+                    string[] line_array = line.Split('=');
+                    int[] idrow = new int[3];
+                    for (int i = 0; i < 3; i++)
+                    {
+                        idrow[i] = Int32.Parse(line_array[i].Replace("=", String.Empty));
+                    }
+                    idList.Add(idrow);
+                    counter++;
+                }
+
+                file.Close();
+                Debug.WriteLine("List Imported");
+                ToConsole("Список идентефикаторов загружен");
+                return true;
+            }
+            catch (Exception ex) {
+                Debug.WriteLine(ex);
+                return false;
+            }
         }
 
         public static void ShowIdList() {
@@ -403,19 +446,41 @@ namespace voda
             //string data = "6856566808CF729254090001060307D27800000C7892540900046D022C3426041353000000023B0000441353000000426C21260227890003FD170E030804FF0A0201040002FF0B905803FF0C0A00BD0F00030D24FF00020201075216";
             //mbus.telegram_decode(data);
             //getVodokanalErrors();
-            ftp ftp = new ftp();
-            ftp.ftp_options options= new ftp.ftp_options();
-            options.host = "176.111.58.218";
-            options.login = "water_counter";
-            options.password = "WATERcounter";
-            options.path = "test_my";
-            ftp.get_last_files(ftp.file_list(options), ftp.get_files_list(options));
-            //ftp.get_files_list(options);
+        }
+
+        private void DownloadAndParse() {
+            clear_all_data();
+            List<string> files = ftp.get_last_files(ftp.file_list(options), ftp.get_files_list(options));
+            List<ftp.ftp_download> file_status = ftp.download_files(files, options);
+            foreach (ftp.ftp_download downloaded in file_status)
+            {
+                if (downloaded.transfer_succ)
+                {
+                    ToConsole(downloaded.filename+" файл успешно загружен");
+                    string fullpath = System.IO.Directory.GetCurrentDirectory() + "\\archive\\" + downloaded.filename;
+                    xml_parse(fullpath);
+                }
+            }
+            FoundNotConnected();
+            ToConsole("Сформировано данных по " + ToSend.Count() + " счетчикам");
+            if (!test_mode)
+            {
+                if (ToSend.Count > 0)
+                {
+                    if (SendToVodokanal())
+                    {
+                        ToConsole("Данные успешно отправлены по " + ToSend.Count + " счетчикам");
+                    }
+                }
+            }
         }
 
         private bool SendToVodokanal() {
-            string login = "vertical";
-            string password = "Lacitrev";
+            //string login = "vertical";
+            //string password = "Lacitrev";
+
+            string login = v_options.login;
+            string password = v_options.password;
 
             // Упаковщик в формат JSON
             var serializer = new JavaScriptSerializer();
@@ -477,8 +542,11 @@ namespace voda
 
         private void getVodokanalErrors()
         {
-            string login = "vertical";
-            string password = "Lacitrev";
+            //string login = "vertical";
+            //string password = "Lacitrev";
+
+            string login = v_options.login;
+            string password = v_options.password;
 
             // Упаковщик в формат JSON
             var serializer = new JavaScriptSerializer();
@@ -512,12 +580,26 @@ namespace voda
 
         private void button6_Click(object sender, EventArgs e)
         {
-            Process_Data();
-            button7.Enabled = true;
-            button6.Enabled = false;
-            label2.Text = "0";
-            timer1.Interval = 3600000;
-            timer1.Start();
+            //Process_Data();
+            if (LoadedValidList)
+            {
+                DownloadAndParse();
+                button7.Enabled = true;
+                button6.Enabled = false;
+                label2.Text = "1";
+                int timeout = 3600000;
+                string[] interval = v_options.interval.Split(':');
+                if (interval.Length == 2)
+                {
+                    timeout = ((Int32.Parse(interval[0]) * 60 * 60) + (Int32.Parse(interval[1]) * 60)) * 1000;
+                    Debug.WriteLine(timeout);
+                }
+                timer1.Interval = timeout;
+                timer1.Start();
+            }
+            else {
+                ToConsole("Загрузите список идентификаторов");
+            }
         }
 
         private void Process_Data() {
@@ -722,7 +804,8 @@ namespace voda
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            Process_Data();
+            //Process_Data();
+            DownloadAndParse();
             label2.Text = (Int32.Parse(label2.Text) + 1).ToString();
         }
 
@@ -782,10 +865,8 @@ namespace voda
                         NZAV = idrow[1].ToString(),
                         ERR_NO = 4
                     });
-                    //Debugger.Break();
                 }
             }
-            //Debugger.Break();
         }
 
         private void button9_Click(object sender, EventArgs e)
@@ -821,8 +902,55 @@ namespace voda
 
         private void настройкиToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            Form2 option_form = new Form2();
+            Form2 option_form = new Form2(this);
             option_form.Show();
         }
+
+        private void read_settings()
+        {
+            //Загрузка данных фтп
+            if (INI.KeyExists("Host", "FTP"))
+            {
+                //host_textBox.Text = INI.ReadINI("FTP", "Host");
+                options.host = INI.ReadINI("FTP", "Host");
+            }
+            if (INI.KeyExists("Login", "FTP"))
+            {
+                //ftplogin_textBox.Text = INI.ReadINI("FTP", "Login");
+                options.login = INI.ReadINI("FTP", "Login");
+            }
+            if (INI.KeyExists("Password", "FTP"))
+            {
+                //ftppassword_textBox.Text = INI.ReadINI("FTP", "Password");
+                options.password = INI.ReadINI("FTP", "Password");
+            }
+            if (INI.KeyExists("FolderPath", "FTP"))
+            {
+                //folder_textBox.Text = INI.ReadINI("FTP", "FolderPath");
+                options.path = INI.ReadINI("FTP", "FolderPath");
+            }
+
+            //Загрузка настроек водоканала
+            if (INI.KeyExists("Login", "KVK"))
+            {
+                //vlogin_textBox.Text = INI.ReadINI("KVK", "Login");
+                v_options.login = INI.ReadINI("KVK", "Login");
+            }
+            if (INI.KeyExists("Password", "KVK"))
+            {
+                v_options.password = INI.ReadINI("KVK", "Password");
+                //vpassword_textBox.Text = INI.ReadINI("KVK", "Password");
+            }
+            if (INI.KeyExists("Interval", "KVK"))
+            {
+                v_options.interval = INI.ReadINI("KVK", "Interval");
+                //time_interval.Text = INI.ReadINI("KVK", "Interval");
+            }
+
+            if (INI.KeyExists("IdPath", "Setup")) {
+                idlistpath = INI.ReadINI("Setup","IdPath");
+            }
+        }
+
     }
 }
