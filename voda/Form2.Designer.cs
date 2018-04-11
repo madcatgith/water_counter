@@ -59,6 +59,22 @@
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.idlist_path = new System.Windows.Forms.TextBox();
             this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.logPath = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.mysqlLogin = new System.Windows.Forms.TextBox();
+            this.mysqlPassword = new System.Windows.Forms.TextBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.mysqlServer = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.mysqlTable = new System.Windows.Forms.TextBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.mysqlDBName = new System.Windows.Forms.TextBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.windowName = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -181,7 +197,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(263, 334);
+            this.button2.Location = new System.Drawing.Point(261, 371);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 13;
@@ -228,13 +244,13 @@
             this.label12.AutoSize = true;
             this.label12.Location = new System.Drawing.Point(429, 21);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(125, 13);
+            this.label12.Size = new System.Drawing.Size(103, 13);
             this.label12.TabIndex = 18;
-            this.label12.Text = "Настройки водоканала";
+            this.label12.Text = "Настройки преима";
             // 
             // vlogin_textBox
             // 
-            this.vlogin_textBox.Location = new System.Drawing.Point(454, 56);
+            this.vlogin_textBox.Location = new System.Drawing.Point(458, 56);
             this.vlogin_textBox.Name = "vlogin_textBox";
             this.vlogin_textBox.Size = new System.Drawing.Size(100, 20);
             this.vlogin_textBox.TabIndex = 19;
@@ -242,7 +258,7 @@
             // 
             // vpassword_textBox
             // 
-            this.vpassword_textBox.Location = new System.Drawing.Point(454, 82);
+            this.vpassword_textBox.Location = new System.Drawing.Point(458, 82);
             this.vpassword_textBox.Name = "vpassword_textBox";
             this.vpassword_textBox.Size = new System.Drawing.Size(100, 20);
             this.vpassword_textBox.TabIndex = 20;
@@ -251,7 +267,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(341, 111);
+            this.label13.Location = new System.Drawing.Point(328, 114);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(107, 13);
             this.label13.TabIndex = 21;
@@ -261,7 +277,7 @@
             // 
             this.time_interval.CustomFormat = "HH:mm";
             this.time_interval.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.time_interval.Location = new System.Drawing.Point(454, 108);
+            this.time_interval.Location = new System.Drawing.Point(458, 108);
             this.time_interval.Name = "time_interval";
             this.time_interval.ShowUpDown = true;
             this.time_interval.Size = new System.Drawing.Size(100, 20);
@@ -317,7 +333,7 @@
             // 
             // idlist_path
             // 
-            this.idlist_path.Location = new System.Drawing.Point(396, 175);
+            this.idlist_path.Location = new System.Drawing.Point(432, 135);
             this.idlist_path.Name = "idlist_path";
             this.idlist_path.Size = new System.Drawing.Size(126, 20);
             this.idlist_path.TabIndex = 28;
@@ -325,7 +341,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(528, 173);
+            this.button3.Location = new System.Drawing.Point(564, 133);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(26, 23);
             this.button3.TabIndex = 29;
@@ -333,11 +349,158 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(564, 158);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(26, 23);
+            this.button4.TabIndex = 30;
+            this.button4.Text = "...";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // logPath
+            // 
+            this.logPath.Location = new System.Drawing.Point(432, 161);
+            this.logPath.Name = "logPath";
+            this.logPath.Size = new System.Drawing.Size(126, 20);
+            this.logPath.TabIndex = 31;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(328, 138);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(98, 13);
+            this.label15.TabIndex = 32;
+            this.label15.Text = "Список счетчиков";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(328, 164);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(94, 13);
+            this.label16.TabIndex = 33;
+            this.label16.Text = "Архивные файлы";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(429, 200);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(92, 13);
+            this.label17.TabIndex = 34;
+            this.label17.Text = "Настройки Mysql";
+            // 
+            // mysqlLogin
+            // 
+            this.mysqlLogin.Location = new System.Drawing.Point(458, 252);
+            this.mysqlLogin.Name = "mysqlLogin";
+            this.mysqlLogin.Size = new System.Drawing.Size(100, 20);
+            this.mysqlLogin.TabIndex = 35;
+            // 
+            // mysqlPassword
+            // 
+            this.mysqlPassword.Location = new System.Drawing.Point(458, 278);
+            this.mysqlPassword.Name = "mysqlPassword";
+            this.mysqlPassword.Size = new System.Drawing.Size(100, 20);
+            this.mysqlPassword.TabIndex = 36;
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(410, 255);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(38, 13);
+            this.label18.TabIndex = 37;
+            this.label18.Text = "Логин";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(403, 281);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(45, 13);
+            this.label19.TabIndex = 38;
+            this.label19.Text = "Пароль";
+            // 
+            // mysqlServer
+            // 
+            this.mysqlServer.Location = new System.Drawing.Point(458, 226);
+            this.mysqlServer.Name = "mysqlServer";
+            this.mysqlServer.Size = new System.Drawing.Size(100, 20);
+            this.mysqlServer.TabIndex = 39;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(404, 229);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(44, 13);
+            this.label20.TabIndex = 40;
+            this.label20.Text = "Сервер";
+            // 
+            // mysqlTable
+            // 
+            this.mysqlTable.Location = new System.Drawing.Point(458, 330);
+            this.mysqlTable.Name = "mysqlTable";
+            this.mysqlTable.Size = new System.Drawing.Size(100, 20);
+            this.mysqlTable.TabIndex = 41;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(398, 333);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(50, 13);
+            this.label21.TabIndex = 42;
+            this.label21.Text = "Таблица";
+            // 
+            // mysqlDBName
+            // 
+            this.mysqlDBName.Location = new System.Drawing.Point(458, 304);
+            this.mysqlDBName.Name = "mysqlDBName";
+            this.mysqlDBName.Size = new System.Drawing.Size(100, 20);
+            this.mysqlDBName.TabIndex = 43;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(400, 307);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(48, 13);
+            this.label22.TabIndex = 44;
+            this.label22.Text = "Имя БД";
+            // 
+            // windowName
+            // 
+            this.windowName.Location = new System.Drawing.Point(251, 12);
+            this.windowName.Name = "windowName";
+            this.windowName.Size = new System.Drawing.Size(100, 20);
+            this.windowName.TabIndex = 45;
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(606, 406);
+            this.Controls.Add(this.windowName);
+            this.Controls.Add(this.label22);
+            this.Controls.Add(this.mysqlDBName);
+            this.Controls.Add(this.label21);
+            this.Controls.Add(this.mysqlTable);
+            this.Controls.Add(this.label20);
+            this.Controls.Add(this.mysqlServer);
+            this.Controls.Add(this.label19);
+            this.Controls.Add(this.label18);
+            this.Controls.Add(this.mysqlPassword);
+            this.Controls.Add(this.mysqlLogin);
+            this.Controls.Add(this.label17);
+            this.Controls.Add(this.label16);
+            this.Controls.Add(this.label15);
+            this.Controls.Add(this.logPath);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.idlist_path);
             this.Controls.Add(this.pictureBox4);
@@ -413,5 +576,21 @@
         private System.Windows.Forms.PictureBox pictureBox4;
         private System.Windows.Forms.TextBox idlist_path;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.TextBox logPath;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.TextBox mysqlLogin;
+        private System.Windows.Forms.TextBox mysqlPassword;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.TextBox mysqlServer;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.TextBox mysqlTable;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TextBox mysqlDBName;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.TextBox windowName;
     }
 }

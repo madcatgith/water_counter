@@ -82,86 +82,136 @@ namespace voda
             var mbus_afterhead = new byte[3];
             var mbus_id = new byte[4];
             int i;
-            for (i = 0; i < 4; i++)
+            //Debugger.Break();
+            try
             {
-                mbus_header[i] = byteData[i];
-            }
-            if (validateHeader(mbus_header))
-            {
-                for (i = 4; i < 12; i++)
+                if (byteData.Length > 4 && byteData[byteData.Length - 1] == 0x16)
                 {
-                    if (i < 7)
+                    for (i = 0; i < 4; i++)
                     {
-                        mbus_afterhead[i - 4] = byteData[i];
+                        mbus_header[i] = byteData[i];
                     }
-                    else
+                    if (validateHeader(mbus_header))
                     {
-                        if (i < 11)
+                        for (i = 4; i < 12; i++)
                         {
-                            mbus_id[i - 7] = byteData[i];
-                        }
-                    }
+                            if (i < 7)
+                            {
+                                mbus_afterhead[i - 4] = byteData[i];
+                            }
+                            else
+                            {
+                                if (i < 11)
+                                {
+                                    mbus_id[i - 7] = byteData[i];
+                                }
+                            }
 
-                }
-                //debugHex(mbus_id);
-                id = Convert.ToInt32(BitConverter.ToString(mbus_id.Reverse().ToArray()).Replace("-", String.Empty));
-                //Debug.WriteLine(id);
-                if (validateMan(new byte[] { byteData[11], byteData[12] }))
-                {
-                    //debugHex(byteData);
-                    errors_decoded_apt=new List<int>(decode_error_apt(byteData));
-                    //Debugger.Break();
-                    //Debug.WriteLine(errors_decoded_apt.Count);
-                    byte[] val = new byte[] { byteData[33], byteData[34], byteData[35], byteData[36] };
-                    normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty), 16);
-                    return true;
-                }
-                else
-                {
-                    if (mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }) == "INV")
-                    {
-                        //debugHex(byteData);
-                        errors_decoded_apt = new List<int>(decode_error_sens(byteData));
-                        byte[] val = new byte[4];
-                        Array.Copy(byteData, byteData.Length - 6, val, 0, 4);
-                        normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty));
-                        return true;
-                    }
-                    else if(mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }) == "APT")
-                    {
-                        debugHex(byteData);
-                        //errors_decoded_apt = new List<int>(decode_error_apt(byteData));
-                        errors_decoded_apt = new List<int>();
-                        byte[] val = new byte[4];
-                        Array.Copy(byteData, 57, val, 0, 4);
-                        normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty));
-                        //Debug.WriteLine("APT VAL^^::"+normval);
-                        //debugHex(byteData);
-                        //debugHex(val);
-                        return true;
+                        }
+                        //Debug.WriteLine(mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }));
+                        id = Convert.ToInt32(BitConverter.ToString(mbus_id.Reverse().ToArray()).Replace("-", String.Empty));
+                        //Debug.WriteLine(id);
+                        if (validateMan(new byte[] { byteData[11], byteData[12] }))
+                        {
+                            //debugHex(byteData);
+                            errors_decoded_apt = new List<int>(decode_error_apt(byteData));
+                            //Debugger.Break();
+                            //Debug.WriteLine(errors_decoded_apt.Count);
+                            byte[] val = new byte[] { byteData[33], byteData[34], byteData[35], byteData[36] };
+                            normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty), 16);
+                            return true;
+                        }
+                        else
+                        {
+                            if (mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }) == "INV")
+                            {
+                                //debugHex(byteData);
+                                errors_decoded_apt = new List<int>(decode_error_sens(byteData));
+                                byte[] val = new byte[4];
+                                /*if (mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }) == "SEN")
+                                    Debugger.Break();*/
+                                Array.Copy(byteData, byteData.Length - 6, val, 0, 4);
+                                normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty));
+                                return true;
+                            }
+                            else if (mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }) == "APT")
+                            {
+                                //debugHex(byteData);
+                                //errors_decoded_apt = new List<int>(decode_error_apt(byteData));
+                                errors_decoded_apt = new List<int>();
+                                byte[] val = new byte[4];
+                                Array.Copy(byteData, 57, val, 0, 4);
+                                normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty));
+                                //Debug.WriteLine("APT VAL^^::"+normval);
+                                //debugHex(byteData);
+                                //debugHex(val);
+                                return true;
+                            }
+                            else if (mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }) == "SEN")
+                            {
+                                errors_decoded_apt = new List<int>();
+                                byte[] val = new byte[4];
+                                int index = IndexOf(byteData, new byte[] { 0x0C, 0x14 }) + 2;
+                                Array.Copy(byteData, index, val, 0, 4);
+                                //debugHex(val);
+                                normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty))*10;
+
+                                return true;
+                            }
+                            else
+                            {
+                                errors_decoded_apt = new List<int>();
+                                readerrors++;
+                                Debug.WriteLine("manufacturer error");
+                                Debug.WriteLine(mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }));
+                                Debug.WriteLine(id);
+                                //debugHex(byteData);
+                                return false;
+                            }
+                        }
+
                     }
                     else
                     {
-                        errors_decoded_apt = new List<int>();
                         readerrors++;
-                        Debug.WriteLine("manufacturer error");
-                        Debug.WriteLine(mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }));
-                        Debug.WriteLine(id);
-                        //debugHex(byteData);
+                        Debug.WriteLine("header error");
                         return false;
                     }
                 }
-
+                else
+                {
+                    readerrors++;
+                    Debug.WriteLine("frame too short");
+                    return false;
+                }
             }
-            else
-            {
-                readerrors++;
-                Debug.WriteLine("header error");
-                return false;
-            }
+            catch (Exception ex) { Debug.WriteLine(ex); readerrors++; return false; }
         }
 
         //-----------------------------------------------------------------------
+
+        public static int IndexOf(byte[] arrayToSearchThrough, byte[] patternToFind)
+        {
+            if (patternToFind.Length > arrayToSearchThrough.Length)
+                return -1;
+            for (int i = 0; i < arrayToSearchThrough.Length - patternToFind.Length; i++)
+            {
+                bool found = true;
+                for (int j = 0; j < patternToFind.Length; j++)
+                {
+                    if (arrayToSearchThrough[i + j] != patternToFind[j])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
 
         //Раскодировка ошибок
         private List<int> decode_error_apt(byte[] data) {

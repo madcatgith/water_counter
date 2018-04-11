@@ -128,7 +128,9 @@ namespace voda
 
                 using (var reader = new StreamReader(response.GetResponseStream()))
                 {
+                    
                     var line = reader.ReadLine();
+                    //Debugger.Break();
                     while (line != null)
                     {
                         result.Append(line);
@@ -146,11 +148,20 @@ namespace voda
                     foreach (string item in list)
                     {
                         string[] temp = item.Split(' ');
-                        if (temp.Length > 5)
+                       
+                        if ((temp.Length > 5)&&(temp[temp.Length - 1].IndexOf(".archive")<0))
                         {
-                            files.Add(new string[] { temp[temp.Length - 1], temp[temp.Length - 2], temp[temp.Length - 3] + " " + temp[temp.Length - 4]});
+                            //Debugger.Break();
+                            if (temp[temp.Length - 3].Trim().Length == 1) {
+                                files.Add(new string[] { temp[temp.Length - 1], temp[temp.Length - 2], "0"+temp[temp.Length - 3] + " " + temp[temp.Length - 5] });
+                            }
+                            else
+                            {
+                                files.Add(new string[] { temp[temp.Length - 1], temp[temp.Length - 2], temp[temp.Length - 3] + " " + temp[temp.Length - 4] });
+                            }
                         }
                     }
+              
                     //files = files.OrderByDescending(x => x[0].Remove(0,x[0].IndexOf('_')+1).Replace(".xml", "").Replace(".rdy", "")).ToList();
                     //Debugger.Break();
                     return files;
@@ -169,6 +180,7 @@ namespace voda
 
         public List<string> get_last_files(List<string> files,List<string[]> list)
         {
+            //Debugger.Break();
             DateTime start = DateTime.ParseExact("00:00 01 Dec 2016", "HH:mm dd MMM yyyy",CultureInfo.InvariantCulture);
 
             if (list.Count > 0 && files.Count>0) {
@@ -187,8 +199,9 @@ namespace voda
                             {
                                 if (item[0].IndexOf(filename) > -1)
                                 {
-                                    var datetime = item[1] + " " + item[2] + " 2017";
+                                    var datetime = item[1] + " " + item[2] + " 2018";
                                     DateTime myDate = DateTime.ParseExact(datetime, "HH:mm dd MMM yyyy", CultureInfo.InvariantCulture);
+                                    //Debugger.Break();
                                     if (myDate > latest[counter])
                                     {
                                         latest[counter] = myDate;
@@ -280,6 +293,49 @@ namespace voda
                 }
             }
             return status;
+        }
+
+        public void delete_processed(List<string> files,string save_path="archive/") {
+            try {
+                foreach (string file in files) {
+                    if (File.Exists(save_path + file))
+                    {
+                        File.Delete(save_path + file);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                Debug.WriteLine(ex);
+            }
+        }
+
+        public void archivate_parsed(List<string> old_files, ftp_options options) {
+            List<string[]> all_files = get_files_list(options);
+            foreach (string[] file in all_files) {
+                try
+                {
+                    if (file[0].IndexOf(".archive") < 0)
+                    {
+                        if (old_files.FindIndex(x => x.Replace(".xml", "") == file[0].Replace(".xml", "").Replace(".rdy","")) < 0)
+                        {
+                            var client = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://" + options.host + "/" + options.path.Trim('/', ' ') + "/" + file[0]));
+                            client.Credentials = new NetworkCredential(options.login, options.password);
+
+                            client.Method = WebRequestMethods.Ftp.Rename;
+                            client.RenameTo = "/" + options.path.Trim('/', ' ') + "/" + file[0] + ".archive";
+                            //Debugger.Break();
+
+                            FtpWebResponse response = (FtpWebResponse)client.GetResponse(); // вот тут ошибку выдает
+
+                            Stream ftpStream = response.GetResponseStream();
+                            response.Close();
+                        }
+                    }
+                }
+                catch (WebException ex) {
+                    Debug.WriteLine(ex);
+                }
+            }
         }
     }
 }

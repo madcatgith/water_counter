@@ -14,22 +14,29 @@ using System.Net;
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
 using System.Threading;
+using MySql.Data.MySqlClient;
 
 namespace voda
 {
     public partial class Form1 : Form
     {
+        Mysql_options mysql_options = new Mysql_options();
+        string mysql_table_name=String.Empty;
+
         IniFile INI = new IniFile("config.ini");
         string path = AppDomain.CurrentDomain.BaseDirectory;
 
         ftp ftp = new ftp();
         ftp.ftp_options options = new ftp.ftp_options();
 
-        string idlistpath=String.Empty;
+        string idlistpath = String.Empty;
+        string logpath = String.Empty;
 
         VodokanalAuth v_options = new VodokanalAuth();
 
         bool LoadedValidList = false;
+        bool Autostart = false;
+        string main_title = "Default Title";
         /*options.host = "176.111.58.218";
         options.login = "water_counter";
         options.password = "WATERcounter";
@@ -106,13 +113,26 @@ namespace voda
             InitializeProperties();
         }
 
+        public Form1(string[] args)
+        {
+            foreach (string arg in args)
+            {
+                if (arg == "-Auto")
+                {
+                    Autostart = true;
+                }
+            }
+            InitializeComponent();
+            InitializeProperties();
+        }
+
         public Mbus mbus = new Mbus();
 
         /*public static int normval;
         public static int id;
         public static string m_date;*/
         public static int row = 0;
-        public static bool test_mode = true;
+        public static bool test_mode = false;
         //public static int readerrors = 0;
 
         public static List<int[]> idList = new List<int[]>();
@@ -128,7 +148,13 @@ namespace voda
             if (idlistpath != String.Empty)
             {
                 if (File.Exists(idlistpath))
+                {
                     LoadedValidList = ReadIdFile(idlistpath);
+                    if (Autostart)
+                    {
+                        button6_Click(this,new EventArgs());
+                    }
+                }
                 if (!LoadedValidList)
                     ToConsole("Список идентификаторов не загружен!!!");
             }
@@ -171,6 +197,7 @@ namespace voda
         private bool xml_parse(string filepath){
             try
             {
+                List<string> errors_to_log = new List<string>();
                 XmlDocument xDoc = new XmlDocument();
                 xDoc.Load(filepath);
                 // получим корневой элемент
@@ -187,6 +214,7 @@ namespace voda
                         {
                             byte[] timestamp = mbus.StringToByteArray(child.InnerText);
                             mbus.m_date = mbus.convertDate(timestamp);
+                            //Debug.WriteLine(mbus.m_date);
 
                         }
                         if (child.Name == "MBTEL")
@@ -211,7 +239,8 @@ namespace voda
                                     {
                                         dataGridView1[5, row].Value = idrow[2];
                                         dataGridView1[6, row].Value = idrow[1];
-                                        double m3val =(double) mbus.normval/1000;
+                                        dataGridView1[8, row].Value = "1";
+                                        double m3val = (double)mbus.normval / 1000;
                                         //Debug.WriteLine(m3val);
                                         ToSend.Add(new CounterData()
                                         {
@@ -224,6 +253,7 @@ namespace voda
                                         //Блок ошибок (вывод в таблицу)
                                         string show_errors = String.Empty;
                                         List<int> error_list = new List<int>(mbus.errors_decoded_apt);
+
                                         //Debug.WriteLine(mbus.errors_decoded_apt.Count);
                                         //Debug.WriteLine(error_list.Count);
 
@@ -244,6 +274,7 @@ namespace voda
                                                         NZAV = Convert.ToString(idrow[1]),
                                                         ERR_NO = 1
                                                     });
+                                                    errors_to_log.Add(idrow[0].ToString() + " - влияние магнитного поля");
                                                     break;
                                                 case 4:
                                                     show_errors += 2 + ",";
@@ -255,6 +286,7 @@ namespace voda
                                                         ERR_NO = 2
                                                     });
                                                     //Debugger.Break();
+                                                    errors_to_log.Add(idrow[0].ToString() + " - влияние на датчик");
                                                     break;
                                                 case 64:
                                                     show_errors += 3 + ",";
@@ -265,12 +297,14 @@ namespace voda
                                                         NZAV = Convert.ToString(idrow[1]),
                                                         ERR_NO = 3
                                                     });
+                                                    errors_to_log.Add(idrow[0].ToString() + " - обратный поток");
                                                     break;
                                             }
                                         }
                                         dataGridView1[7, row].Value = show_errors;
                                         //--------------------------------------------------
                                     }
+                                    else { dataGridView1[8, row].Value = "0"; }
                                     row++;
                                 }
                                 else
@@ -293,6 +327,10 @@ namespace voda
                     ToConsole("Список дубликатов:");
                     showDuplicates();
                 }
+                if (errors_to_log.Count > 0) {
+                    errors_to_log.Insert(0,"Ошибки:");
+                    write_to_log(errors_to_log);
+                }
                 return true;
             }
             catch (Exception ex) {
@@ -311,9 +349,16 @@ namespace voda
         }
 
         private void showDuplicates() {
+            List<string> log = new List<string>();
             foreach (int id in duplicateList) {
                 ToConsole(id.ToString());
+                log.Add(id.ToString());
             }
+            if (log.Count > 0) {
+                log.Insert(0,"Дубликаты");
+                write_to_log(log);
+            }
+            
         }
 
 
@@ -347,10 +392,18 @@ namespace voda
                     {
                         idrow[i] = Int32.Parse(line_array[i].Replace("=", String.Empty));
                     }
+                    foreach (int[] id in idList)
+                    {
+                        if (id[0] == idrow[0]) {
+                            Debug.WriteLine(idrow[0]);
+                            ToConsole("Дубликат в списке идентификаторов "+idrow[0]);
+                        }
+                    }
                     idList.Add(idrow);
                     counter++;
                 }
-
+                
+                //Debugger.Break();
                 file.Close();
                 Debug.WriteLine("List Imported");
                 ToConsole("Список идентефикаторов загружен");
@@ -452,6 +505,7 @@ namespace voda
             clear_all_data();
             List<string> files = ftp.get_last_files(ftp.file_list(options), ftp.get_files_list(options));
             List<ftp.ftp_download> file_status = ftp.download_files(files, options);
+            List<string> parsed_files = new List<string>();
             foreach (ftp.ftp_download downloaded in file_status)
             {
                 if (downloaded.transfer_succ)
@@ -459,9 +513,13 @@ namespace voda
                     ToConsole(downloaded.filename+" файл успешно загружен");
                     string fullpath = System.IO.Directory.GetCurrentDirectory() + "\\archive\\" + downloaded.filename;
                     xml_parse(fullpath);
+                    parsed_files.Add(downloaded.filename);
                 }
             }
             FoundNotConnected();
+            ftp.delete_processed(parsed_files);
+            //Debugger.Break();
+            ftp.archivate_parsed(parsed_files,options);
             ToConsole("Сформировано данных по " + ToSend.Count() + " счетчикам");
             if (!test_mode)
             {
@@ -476,66 +534,77 @@ namespace voda
         }
 
         private bool SendToVodokanal() {
-            //string login = "vertical";
-            //string password = "Lacitrev";
-
-            string login = v_options.login;
-            string password = v_options.password;
-
-            // Упаковщик в формат JSON
-            var serializer = new JavaScriptSerializer();
-
-            // Клиент web-сервиса
-            var webClient = new VodokanalService.WebServiceSoapClient("WebServiceSoap");
-            // Выполнить проверку логина и пароля
-            var loginRequstJson = webClient.LoginEx(login, password);
-
-            // Вывести результат к консоль
-            Console.WriteLine(loginRequstJson);
-
-            // Распаковать строку с результатами аутентификации
-            var loginRequest = (Dictionary<string, object>)serializer.Deserialize(loginRequstJson, typeof(Dictionary<string, object>));
-
-            // Успешность аутентификации
-            bool success = (bool)loginRequest["Success"];
-            
-
-            if (success)
+            try
             {
-                ToConsole("Аутентификация успешна");
-                // Временный билет
-                string ticket = (string)loginRequest["Ticket"];
-                ToConsole(ticket);
+                //string login = "vertical";
+                //string password = "Lacitrev";
 
-                //Передадим данные с показаниями на сервер
-                //Для примера я взял данные по двум счетчикам с потолка
+                string login = v_options.login;
+                string password = v_options.password;
 
-                //Упакуем их в формат JSON
-                //Формат передачи такой: {"jsons":[{"ID":1,"UNIXTIME":234234234,"POKAZ":456.88,"NZAV":"qwr23r2r"},{"ID":2,"UNIXTIME":234254234,"POKAZ":5656.05,"NZAV":"qwr2dswfr2r"}]}
-                var dict = new Dictionary<string, object>();
-                dict.Add("jsons", ToSend);
-                string JsonResult = serializer.Serialize(dict);
+                // Упаковщик в формат JSON
+                var serializer = new JavaScriptSerializer();
 
-                //Передадим на сервер
-                var JsonAnswer = webClient.ExecuteEx("_ACCXB.ADDCOUNTERVALUES", JsonResult, ticket);
+                // Клиент web-сервиса
+                var webClient = new VodokanalService.WebServiceSoapClient("WebServiceSoap");
+                // Выполнить проверку логина и пароля
+                var loginRequstJson = webClient.LoginEx(login, password);
 
-                //Посмотрим на ответ сервера
-                var answer = (Dictionary<string, object>)serializer.Deserialize(JsonAnswer, typeof(Dictionary<string, object>));
+                // Вывести результат к консоль
+                Console.WriteLine(loginRequstJson);
 
-                //Успешность передачи данных
-                success = (bool)answer["SUCCESS"];
+                // Распаковать строку с результатами аутентификации
+                var loginRequest = (Dictionary<string, object>)serializer.Deserialize(loginRequstJson, typeof(Dictionary<string, object>));
 
-                if (ErrorsToSend.Count > 0) {
-                    var err_dict = new Dictionary<string, object>();
-                    err_dict.Add("jsons",ErrorsToSend);
-                    string JsonErrorResult = serializer.Serialize(err_dict);
-                    var JsonErrorAnswer = webClient.ExecuteEx("_ACCXB.ADDERRORVALUES", JsonErrorResult,ticket);
-                    var err_answer= (Dictionary<string, object>)serializer.Deserialize(JsonErrorAnswer, typeof(Dictionary<string, object>));
-                    success = (bool)err_answer["SUCCESS"];
+                // Успешность аутентификации
+                bool success = (bool)loginRequest["Success"];
+
+
+                if (success)
+                {
+                    ToConsole("Аутентификация успешна");
+                    // Временный билет
+                    string ticket = (string)loginRequest["Ticket"];
+                    ToConsole(ticket);
+
+                    //Передадим данные с показаниями на сервер
+                    //Для примера я взял данные по двум счетчикам с потолка
+
+                    //Упакуем их в формат JSON
+                    //Формат передачи такой: {"jsons":[{"ID":1,"UNIXTIME":234234234,"POKAZ":456.88,"NZAV":"qwr23r2r"},{"ID":2,"UNIXTIME":234254234,"POKAZ":5656.05,"NZAV":"qwr2dswfr2r"}]}
+                    var dict = new Dictionary<string, object>();
+                    dict.Add("jsons", ToSend);
+                    string JsonResult = serializer.Serialize(dict);
+
+                    //Передадим на сервер
+                    var JsonAnswer = webClient.ExecuteEx("_ACCXB.ADDCOUNTERVALUES", JsonResult, ticket);
+
+                    //Посмотрим на ответ сервера
+                    var answer = (Dictionary<string, object>)serializer.Deserialize(JsonAnswer, typeof(Dictionary<string, object>));
+
+                    //Успешность передачи данных
+                    success = (bool)answer["SUCCESS"];
+
+                    if (ErrorsToSend.Count > 0)
+                    {
+                        var err_dict = new Dictionary<string, object>();
+                        err_dict.Add("jsons", ErrorsToSend);
+                        string JsonErrorResult = serializer.Serialize(err_dict);
+                        var JsonErrorAnswer = webClient.ExecuteEx("_ACCXB.ADDERRORVALUES", JsonErrorResult, ticket);
+                        var err_answer = (Dictionary<string, object>)serializer.Deserialize(JsonErrorAnswer, typeof(Dictionary<string, object>));
+                        success = (bool)err_answer["SUCCESS"];
+                    }
+                    return success;
                 }
-                return success;
+                else
+                {
+                    return false;
+                }
             }
-            else{
+            catch (Exception ex) {
+                Debug.WriteLine(ex);
+                ToConsole(ex.ToString());
+                write_to_log(new string[] {ex.ToString()} );
                 return false;
             }
         }
@@ -594,6 +663,7 @@ namespace voda
                     timeout = ((Int32.Parse(interval[0]) * 60 * 60) + (Int32.Parse(interval[1]) * 60)) * 1000;
                     Debug.WriteLine(timeout);
                 }
+                load_mysql_logs();
                 timer1.Interval = timeout;
                 timer1.Start();
             }
@@ -805,8 +875,10 @@ namespace voda
         private void timer1_Tick(object sender, EventArgs e)
         {
             //Process_Data();
+            Debug.WriteLine("tick");
             DownloadAndParse();
             label2.Text = (Int32.Parse(label2.Text) + 1).ToString();
+            load_mysql_logs();
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -851,21 +923,30 @@ namespace voda
                 {
                     notFound.Add(idList[i][0].ToString());
                 }
+               
             }
-            foreach (string not in notFound)
+            if (notFound.Count > 0)
             {
-                ToConsole(not);
-                int[] idrow = FindIds(Convert.ToInt32(not));
-                if (idrow[0] != 0)
+                ToConsole("Список неподключенных счетчиков:");
+                foreach (string not in notFound)
                 {
-                    ErrorsToSend.Add(new ErrorData
+                    ToConsole(not);
+                    int[] idrow = FindIds(Convert.ToInt32(not));
+                    if (idrow[0] != 0)
                     {
-                        UNIXTIME = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds,
-                        ID = idrow[2],
-                        NZAV = idrow[1].ToString(),
-                        ERR_NO = 4
-                    });
+                        ErrorsToSend.Add(new ErrorData
+                        {
+                            UNIXTIME = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds,
+                            ID = idrow[2],
+                            NZAV = idrow[1].ToString(),
+                            ERR_NO = 4
+                        });
+                    }
                 }
+                notFound.Insert(0, "Список неподключенных счетчиков");
+                //Debugger.Break();
+                //ToConsole("Список неподключенных счетчиков");
+                write_to_log(notFound);
             }
         }
 
@@ -949,6 +1030,148 @@ namespace voda
 
             if (INI.KeyExists("IdPath", "Setup")) {
                 idlistpath = INI.ReadINI("Setup","IdPath");
+            }
+
+            if (INI.KeyExists("LogPath", "Setup"))
+            {
+                logpath = INI.ReadINI("Setup", "LogPath")+"\\logs";
+            }
+
+            if (INI.KeyExists("WindowName","Setup")) {
+                this.Text = INI.ReadINI("Setup","WindowName");
+                main_title = INI.ReadINI("Setup", "WindowName");
+            }
+
+            
+            if (INI.KeyExists("Server","Mysql")) {
+                mysql_options.host = INI.ReadINI("Mysql","Server");
+            }
+            if (INI.KeyExists("Login", "Mysql")) {
+                mysql_options.login = INI.ReadINI("Mysql","Login");
+            }
+            if (INI.KeyExists("Password", "Mysql"))
+            {
+                mysql_options.password = INI.ReadINI("Mysql", "Password");
+            }
+            if (INI.KeyExists("DBName", "Mysql")){
+                mysql_options.dbname = INI.ReadINI("Mysql", "DBName");
+            }
+
+            if (INI.KeyExists("Table", "Mysql")) {
+                check_mysql_table(INI.ReadINI("Mysql","Table"));
+            }
+
+        }
+
+        private void check_mysql_table(string table) {
+            MysqlControl mysql_control = new MysqlControl(mysql_options);
+            if (mysql_control.check_connection())
+            {
+                Debug.WriteLine("mysql connected");
+                if (mysql_control.tableExists(table))
+                {
+                    Debug.WriteLine("table_exists");
+                    mysql_options.table = table;
+                }
+                else
+                {
+                    Debug.WriteLine("no table");
+                    mysql_control.createTable(table);
+                    if (mysql_control.tableExists(table)) {
+                        mysql_options.table = table;
+                    }
+                }
+                //mysql_control.insertData(1,"1","1","0","1","1","1","1");
+                //mysql_control.clearTable();
+            }
+        }
+
+        private void load_mysql_logs() {
+            //Debugger.Break();
+            try
+            {
+                MysqlControl mysql_control = new MysqlControl(mysql_options);
+                mysql_control.clearTable();
+                for (int i = 0; i < dataGridView1.RowCount; i++)
+                {
+                    string test = dataGridView1[0,i].Value.ToString();
+                    //Debugger.Break();
+                    for (int j = 0; j < 8; j++) {
+                        if (dataGridView1[j,i].Value==null)
+                            dataGridView1[j, i].Value = "";
+                    }
+                    mysql_control.insertData(dataGridView1[0, i].Value.ToString(), dataGridView1[1, i].Value.ToString(), dataGridView1[2, i].Value.ToString(), dataGridView1[3, i].Value.ToString(), dataGridView1[4, i].Value.ToString(), dataGridView1[5, i].Value.ToString(), dataGridView1[6, i].Value.ToString(), dataGridView1[7, i].Value.ToString(),dataGridView1[8,i].Value.ToString(),main_title);
+                }
+            }
+            catch (Exception ex) {
+                Debug.WriteLine(ex);
+            }
+        }
+
+        private void write_to_log(string[] lines) {
+            try
+            {
+                string timestamp = DateTime.Now.ToString();
+                string filename = DateTime.Today.ToString("d") + ".log";
+                if (!Directory.Exists(logpath))
+                {
+                    Directory.CreateDirectory(logpath);
+                }
+                if (!File.Exists(logpath + "\\" + filename))
+                {
+                    var file = File.Create(logpath + "\\" + filename);
+                    file.Close();
+                }
+
+                using (StreamWriter logfile = File.AppendText(logpath + "\\" + filename))
+                {
+                    logfile.WriteLine(timestamp);
+
+                    foreach (string line in lines)
+                    {
+                        logfile.WriteLine(line);
+                    }
+
+                    logfile.Close();
+                }
+            }
+            catch (Exception ex) {
+                Debug.WriteLine(ex);
+            }
+        }
+
+        private void write_to_log(List<string> lines)
+        {
+            try
+            {
+                string timestamp = DateTime.Now.ToString();
+                string filename = DateTime.Today.ToString("d") + ".log";
+                filename=filename.Replace('\\', '.');
+                if (!Directory.Exists(logpath))
+                {
+                    Directory.CreateDirectory(logpath);
+                }
+                if (!File.Exists(logpath + "\\" + filename))
+                {
+                    var file = File.Create(logpath + "\\" + filename);
+                    file.Close();
+                }
+
+                using (StreamWriter logfile = File.AppendText(logpath + "\\" + filename))
+                {
+                    logfile.WriteLine(timestamp);
+
+                    foreach (string line in lines)
+                    {
+                        logfile.WriteLine(line);
+                    }
+
+                    logfile.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
             }
         }
 

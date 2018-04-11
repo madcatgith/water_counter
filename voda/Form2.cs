@@ -38,6 +38,7 @@ namespace voda
         private void button2_Click(object sender, EventArgs e)
         {
             save_settings();
+            main_form.Text = windowName.Text.ToString();
             main_form.InitializeProperties();
         }
 
@@ -55,6 +56,15 @@ namespace voda
 
             //Опции
             INI.Write("Setup", "IdPath", idlist_path.Text.ToString());
+            INI.Write("Setup", "LogPath", logPath.Text.ToString());
+            INI.Write("Setup", "WindowName",windowName.Text.ToString());
+
+            //Mysql
+            INI.Write("Mysql","Server",mysqlServer.Text.ToString());
+            INI.Write("Mysql", "Login", mysqlLogin.Text.ToString());
+            INI.Write("Mysql", "Password", mysqlPassword.Text.ToString());
+            INI.Write("Mysql", "DBName", mysqlDBName.Text.ToString());
+            INI.Write("Mysql", "Table", mysqlTable.Text.ToString());
 
             DataSaved = true;
         }
@@ -95,6 +105,31 @@ namespace voda
             if (INI.KeyExists("IdPath", "Setup"))
             {
                 idlist_path.Text = INI.ReadINI("Setup", "IdPath");
+            }
+            if (INI.KeyExists("LogPath", "Setup"))
+            {
+                logPath.Text = INI.ReadINI("Setup", "LogPath");
+            }
+            if (INI.KeyExists("WindowName","Setup")) {
+                windowName.Text = INI.ReadINI("Setup","WindowName");
+            }
+
+            //Mysql
+            if (INI.KeyExists("Server","Mysql")) {
+                mysqlServer.Text = INI.ReadINI("Mysql","Server");
+            }
+            if (INI.KeyExists("Login","Mysql")) {
+                mysqlLogin.Text = INI.ReadINI("Mysql","Login");
+            }
+            if (INI.KeyExists("Password","Mysql")) {
+                mysqlPassword.Text = INI.ReadINI("Mysql","Password");
+            }
+            if (INI.KeyExists("DBName", "Mysql"))
+            {
+                mysqlDBName.Text = INI.ReadINI("Mysql", "DBName");
+            }
+            if (INI.KeyExists("Table","Mysql")) {
+                mysqlTable.Text = INI.ReadINI("Mysql","Table");
             }
         }
 
@@ -219,6 +254,46 @@ namespace voda
         private void idlist_path_TextChanged(object sender, EventArgs e)
         {
             DataSaved = false;
+        }
+
+        private void windowName_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void mysqlServer_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void mysqlLogin_path_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void mysqlPassword_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void mysqlDBName_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void mysqlTable_TextChanged(object sender, EventArgs e)
+        {
+            DataSaved = false;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog folderDialog = new FolderBrowserDialog();
+
+            if (folderDialog.ShowDialog() == DialogResult.OK)
+            {
+                logPath.Text = folderDialog.SelectedPath;
+            }
         }
     }
 }

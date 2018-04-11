@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // Управление общими сведениями о сборке осуществляется с помощью 
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("voda")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Meter Data Transfer System")]
+[assembly: AssemblyDescription("Система передачи данных со счетчиков")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("voda")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyProduct("Meter Data Transfer System")]
+[assembly: AssemblyCopyright("Конокотин М.О. ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

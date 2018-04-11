@@ -33,14 +33,6 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.num = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nak_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.val = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.date = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.unixtime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.vod_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nzav = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.errors = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label1 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
@@ -55,6 +47,15 @@
             this.настройкиToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.настройкиToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.выходToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.num = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nak_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.val = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.date = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.unixtime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.vod_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nzav = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.errors = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.send = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -100,68 +101,13 @@
             this.unixtime,
             this.vod_id,
             this.nzav,
-            this.errors});
+            this.errors,
+            this.send});
             this.dataGridView1.Location = new System.Drawing.Point(12, 29);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.Size = new System.Drawing.Size(761, 208);
             this.dataGridView1.TabIndex = 3;
-            // 
-            // num
-            // 
-            this.num.Frozen = true;
-            this.num.HeaderText = "num";
-            this.num.Name = "num";
-            this.num.ReadOnly = true;
-            // 
-            // nak_id
-            // 
-            this.nak_id.Frozen = true;
-            this.nak_id.HeaderText = "id";
-            this.nak_id.Name = "nak_id";
-            this.nak_id.ReadOnly = true;
-            // 
-            // val
-            // 
-            this.val.Frozen = true;
-            this.val.HeaderText = "val";
-            this.val.Name = "val";
-            this.val.ReadOnly = true;
-            // 
-            // date
-            // 
-            this.date.Frozen = true;
-            this.date.HeaderText = "date";
-            this.date.Name = "date";
-            this.date.ReadOnly = true;
-            // 
-            // unixtime
-            // 
-            this.unixtime.Frozen = true;
-            this.unixtime.HeaderText = "unixtime";
-            this.unixtime.Name = "unixtime";
-            this.unixtime.ReadOnly = true;
-            // 
-            // vod_id
-            // 
-            this.vod_id.Frozen = true;
-            this.vod_id.HeaderText = "vod_id";
-            this.vod_id.Name = "vod_id";
-            this.vod_id.ReadOnly = true;
-            // 
-            // nzav
-            // 
-            this.nzav.Frozen = true;
-            this.nzav.HeaderText = "nzav";
-            this.nzav.Name = "nzav";
-            this.nzav.ReadOnly = true;
-            // 
-            // errors
-            // 
-            this.errors.Frozen = true;
-            this.errors.HeaderText = "Errors";
-            this.errors.Name = "errors";
-            this.errors.ReadOnly = true;
             // 
             // label1
             // 
@@ -200,6 +146,7 @@
             this.button5.TabIndex = 7;
             this.button5.Text = "TEST";
             this.button5.UseVisualStyleBackColor = true;
+            this.button5.Visible = false;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // button6
@@ -208,7 +155,7 @@
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(75, 23);
             this.button6.TabIndex = 8;
-            this.button6.Text = "Start Timer";
+            this.button6.Text = "Запуск";
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
@@ -219,7 +166,7 @@
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(75, 23);
             this.button7.TabIndex = 9;
-            this.button7.Text = "Stop Timer";
+            this.button7.Text = "Стоп";
             this.button7.UseVisualStyleBackColor = true;
             this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
@@ -288,6 +235,67 @@
             this.выходToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.выходToolStripMenuItem.Text = "Выход";
             // 
+            // num
+            // 
+            this.num.Frozen = true;
+            this.num.HeaderText = "Номер";
+            this.num.Name = "num";
+            this.num.ReadOnly = true;
+            // 
+            // nak_id
+            // 
+            this.nak_id.Frozen = true;
+            this.nak_id.HeaderText = "ID накладки";
+            this.nak_id.Name = "nak_id";
+            this.nak_id.ReadOnly = true;
+            // 
+            // val
+            // 
+            this.val.Frozen = true;
+            this.val.HeaderText = "Значение";
+            this.val.Name = "val";
+            this.val.ReadOnly = true;
+            // 
+            // date
+            // 
+            this.date.Frozen = true;
+            this.date.HeaderText = "Дата";
+            this.date.Name = "date";
+            this.date.ReadOnly = true;
+            // 
+            // unixtime
+            // 
+            this.unixtime.Frozen = true;
+            this.unixtime.HeaderText = "Unix время";
+            this.unixtime.Name = "unixtime";
+            this.unixtime.ReadOnly = true;
+            // 
+            // vod_id
+            // 
+            this.vod_id.Frozen = true;
+            this.vod_id.HeaderText = "Идентификатор";
+            this.vod_id.Name = "vod_id";
+            this.vod_id.ReadOnly = true;
+            // 
+            // nzav
+            // 
+            this.nzav.Frozen = true;
+            this.nzav.HeaderText = "Заводской номер";
+            this.nzav.Name = "nzav";
+            this.nzav.ReadOnly = true;
+            // 
+            // errors
+            // 
+            this.errors.Frozen = true;
+            this.errors.HeaderText = "Ошибки";
+            this.errors.Name = "errors";
+            this.errors.ReadOnly = true;
+            // 
+            // send
+            // 
+            this.send.HeaderText = "Отправлено";
+            this.send.Name = "send";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -310,7 +318,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Вигрузка в водоканал";
+            this.Text = "MDTS";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -335,6 +343,10 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.Button button9;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem настройкиToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem настройкиToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem выходToolStripMenuItem;
         private System.Windows.Forms.DataGridViewTextBoxColumn num;
         private System.Windows.Forms.DataGridViewTextBoxColumn nak_id;
         private System.Windows.Forms.DataGridViewTextBoxColumn val;
@@ -343,10 +355,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn vod_id;
         private System.Windows.Forms.DataGridViewTextBoxColumn nzav;
         private System.Windows.Forms.DataGridViewTextBoxColumn errors;
-        private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem настройкиToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem настройкиToolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem выходToolStripMenuItem;
+        private System.Windows.Forms.DataGridViewTextBoxColumn send;
     }
 }
 
