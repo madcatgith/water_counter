@@ -132,7 +132,7 @@ namespace voda
         public static int id;
         public static string m_date;*/
         public static int row = 0;
-        public static bool test_mode = false;
+        public static bool test_mode = true;
         //public static int readerrors = 0;
 
         public static List<int[]> idList = new List<int[]>();
@@ -499,11 +499,13 @@ namespace voda
             //string data = "6856566808CF729254090001060307D27800000C7892540900046D022C3426041353000000023B0000441353000000426C21260227890003FD170E030804FF0A0201040002FF0B905803FF0C0A00BD0F00030D24FF00020201075216";
             //mbus.telegram_decode(data);
             //getVodokanalErrors();
+            //ftp.get_last_test(options);
+            //Debugger.Break();
         }
 
         private void DownloadAndParse() {
             clear_all_data();
-            List<string> files = ftp.get_last_files(ftp.file_list(options), ftp.get_files_list(options));
+            List<string> files = ftp.get_last_files(ftp.file_list(options), ftp.get_files_list(options), options);
             List<ftp.ftp_download> file_status = ftp.download_files(files, options);
             List<string> parsed_files = new List<string>();
             foreach (ftp.ftp_download downloaded in file_status)

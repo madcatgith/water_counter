@@ -33,6 +33,15 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.num = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nak_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.val = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.date = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.unixtime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.vod_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nzav = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.errors = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.send = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label1 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
@@ -47,15 +56,6 @@
             this.настройкиToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.настройкиToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.выходToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.num = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nak_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.val = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.date = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.unixtime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.vod_id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nzav = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.errors = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.send = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -109,6 +109,67 @@
             this.dataGridView1.Size = new System.Drawing.Size(761, 208);
             this.dataGridView1.TabIndex = 3;
             // 
+            // num
+            // 
+            this.num.Frozen = true;
+            this.num.HeaderText = "Номер";
+            this.num.Name = "num";
+            this.num.ReadOnly = true;
+            // 
+            // nak_id
+            // 
+            this.nak_id.Frozen = true;
+            this.nak_id.HeaderText = "ID накладки";
+            this.nak_id.Name = "nak_id";
+            this.nak_id.ReadOnly = true;
+            // 
+            // val
+            // 
+            this.val.Frozen = true;
+            this.val.HeaderText = "Значение";
+            this.val.Name = "val";
+            this.val.ReadOnly = true;
+            // 
+            // date
+            // 
+            this.date.Frozen = true;
+            this.date.HeaderText = "Дата";
+            this.date.Name = "date";
+            this.date.ReadOnly = true;
+            // 
+            // unixtime
+            // 
+            this.unixtime.Frozen = true;
+            this.unixtime.HeaderText = "Unix время";
+            this.unixtime.Name = "unixtime";
+            this.unixtime.ReadOnly = true;
+            // 
+            // vod_id
+            // 
+            this.vod_id.Frozen = true;
+            this.vod_id.HeaderText = "Идентификатор";
+            this.vod_id.Name = "vod_id";
+            this.vod_id.ReadOnly = true;
+            // 
+            // nzav
+            // 
+            this.nzav.Frozen = true;
+            this.nzav.HeaderText = "Заводской номер";
+            this.nzav.Name = "nzav";
+            this.nzav.ReadOnly = true;
+            // 
+            // errors
+            // 
+            this.errors.Frozen = true;
+            this.errors.HeaderText = "Ошибки";
+            this.errors.Name = "errors";
+            this.errors.ReadOnly = true;
+            // 
+            // send
+            // 
+            this.send.HeaderText = "Отправлено";
+            this.send.Name = "send";
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -146,7 +207,6 @@
             this.button5.TabIndex = 7;
             this.button5.Text = "TEST";
             this.button5.UseVisualStyleBackColor = true;
-            this.button5.Visible = false;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // button6
@@ -234,67 +294,6 @@
             this.выходToolStripMenuItem.Name = "выходToolStripMenuItem";
             this.выходToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.выходToolStripMenuItem.Text = "Выход";
-            // 
-            // num
-            // 
-            this.num.Frozen = true;
-            this.num.HeaderText = "Номер";
-            this.num.Name = "num";
-            this.num.ReadOnly = true;
-            // 
-            // nak_id
-            // 
-            this.nak_id.Frozen = true;
-            this.nak_id.HeaderText = "ID накладки";
-            this.nak_id.Name = "nak_id";
-            this.nak_id.ReadOnly = true;
-            // 
-            // val
-            // 
-            this.val.Frozen = true;
-            this.val.HeaderText = "Значение";
-            this.val.Name = "val";
-            this.val.ReadOnly = true;
-            // 
-            // date
-            // 
-            this.date.Frozen = true;
-            this.date.HeaderText = "Дата";
-            this.date.Name = "date";
-            this.date.ReadOnly = true;
-            // 
-            // unixtime
-            // 
-            this.unixtime.Frozen = true;
-            this.unixtime.HeaderText = "Unix время";
-            this.unixtime.Name = "unixtime";
-            this.unixtime.ReadOnly = true;
-            // 
-            // vod_id
-            // 
-            this.vod_id.Frozen = true;
-            this.vod_id.HeaderText = "Идентификатор";
-            this.vod_id.Name = "vod_id";
-            this.vod_id.ReadOnly = true;
-            // 
-            // nzav
-            // 
-            this.nzav.Frozen = true;
-            this.nzav.HeaderText = "Заводской номер";
-            this.nzav.Name = "nzav";
-            this.nzav.ReadOnly = true;
-            // 
-            // errors
-            // 
-            this.errors.Frozen = true;
-            this.errors.HeaderText = "Ошибки";
-            this.errors.Name = "errors";
-            this.errors.ReadOnly = true;
-            // 
-            // send
-            // 
-            this.send.HeaderText = "Отправлено";
-            this.send.Name = "send";
             // 
             // Form1
             // 
