@@ -132,7 +132,7 @@ namespace voda
             {
                 try
                 {
-                    string Command = @"CREATE TABLE "+table+"(id INT NOT NULL, id_nak VARCHAR(20) NULL, val VARCHAR(20) NULL, date VARCHAR(40) NULL, unixtime VARCHAR(10) NULL, id_vod VARCHAR(20) NULL, nzav VARCHAR(20) NULL, errors VARCHAR(10) NULL,send VARCHAR(1) NULL, main_title VARCHAR(10) NOT NULL, full_count VARCHAR(10),  PRIMARY KEY (id))";
+                    string Command = @"CREATE TABLE "+table+ "(id INT NOT NULL, id_nak VARCHAR(20) NULL, val VARCHAR(20) NULL, date VARCHAR(40) NULL, unixtime VARCHAR(10) NULL, id_vod VARCHAR(20) NULL, nzav VARCHAR(20) NULL, errors VARCHAR(10) NULL,send VARCHAR(1) NULL, main_title VARCHAR(10) NOT NULL, full_count VARCHAR(10),  PRIMARY KEY (id), not_in_xml VARCHAR(10000) NOT NULL, duplicates_in_xml VARCHAR(10000) NOT NULL)";
                     MySqlConnection myConnection = new MySqlConnection(Connection_string);
                     MySqlCommand myCommand = new MySqlCommand(Command, myConnection);
                     myConnection.Open();
@@ -160,7 +160,32 @@ namespace voda
                     if (val == "") { val = "0"; }
                     if (id_vod == "") { id_vod = "0"; }
                     if (nzav == "") { nzav = "0"; }
-                    string Command = @"INSERT INTO `"+con_opt.table+"`(`id`, `id_nak`, `val`, `date`, `unixtime`, `id_vod`, `nzav`, `errors`,`send`,`main_title`) VALUES ("+id+","+id_nak+","+val+",'"+date+"',"+unixtime+","+id_vod+","+nzav+",'"+errors+"',"+send+",'"+title+"')";
+                    string Command = @"INSERT INTO `"+con_opt.table+ "`(`id`, `id_nak`, `val`, `date`, `unixtime`, `id_vod`, `nzav`, `errors`,`send`,`main_title`) VALUES (" + id+","+id_nak+","+val+",'"+date+"',"+unixtime+","+id_vod+","+nzav+",'"+errors+"',"+send+",'"+title+"')";
+                    //Debugger.Break();
+                    MySqlConnection myConnection = new MySqlConnection(Connection_string);
+                    MySqlCommand myCommand = new MySqlCommand(Command, myConnection);
+                    myConnection.Open();
+                    myCommand.ExecuteNonQuery();
+                    myConnection.Close();
+                    mysql_status = true;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+            }
+        }
+        public void insertErrors(string err, string copy)
+        {
+            if (check_options(con_opt) && (con_opt.table != String.Empty))
+            {
+                try
+                {
+                    bool stop = false;
+                    if (err == "") { err = "0"; }
+                    if (copy == "") { copy = "0"; }
+                    string Command = @"INSERT INTO `"+con_opt.table+ "`(`not_in_xml`, `duplicates_in_xml`) VALUES ('" + err + "','" + copy + "')";
+                    //Debugger.Break();
                     MySqlConnection myConnection = new MySqlConnection(Connection_string);
                     MySqlCommand myCommand = new MySqlCommand(Command, myConnection);
                     myConnection.Open();
