@@ -116,6 +116,17 @@ namespace voda
             return new ftp_error() { no_error = false, error_status=9};
         }
 
+        /*функция получения даты последнего изменения файла 13.04.18*/
+            public string get_file_date(ftp_options options, string file_name)
+            {
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + options.host + "/" + options.path.Trim('/', ' ') + "/" + file_name);
+                request.Method = WebRequestMethods.Ftp.GetDateTimestamp;
+                request.Credentials = new NetworkCredential(options.login, options.password);
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                string date_last_mod = Convert.ToString(response.LastModified);
+                return date_last_mod;
+            }
+        /*функция получения даты последнего изменения файла конец*/
         public List<string[]> get_files_list(ftp_options options) {
             try
             {
@@ -124,8 +135,7 @@ namespace voda
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + options.host + "/"+ options.path.Trim('/', ' ') + "/");
                 request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
                 request.Credentials = new NetworkCredential(options.login, options.password);
-                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();               
                 using (var reader = new StreamReader(response.GetResponseStream()))
                 {
                     
@@ -141,14 +151,14 @@ namespace voda
                 }
                 
                 var list = result.ToString().Split('\n').ToList<string>();
-
+                //Debugger.Break();
                 try
                 {
                     List<string[]> files = new List<string[]>();
                     foreach (string item in list)
                     {
                         string[] temp = item.Split(' ');
-                       
+                        //Debugger.Break();
                         if ((temp.Length > 5)&&(temp[temp.Length - 1].IndexOf(".archive")<0))
                         {
                             //Debugger.Break();
@@ -178,11 +188,11 @@ namespace voda
             return new List<string[]>();
         }
 
-        public List<string> get_last_files(List<string> files,List<string[]> list)
+        public List<string> get_last_files(List<string> files,List<string[]> list, ftp_options options)
         {
             //Debugger.Break();
-            DateTime start = DateTime.ParseExact("00:00 01 Dec 2016", "HH:mm dd MMM yyyy",CultureInfo.InvariantCulture);
-
+            DateTime start = DateTime.ParseExact("01.01.2016 00:00:01", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+           
             if (list.Count > 0 && files.Count>0) {
                 string[] latest_files = new string[files.Count]; 
                 DateTime[] latest = new DateTime[files.Count];
@@ -192,15 +202,19 @@ namespace voda
                 }
 
                 foreach (string[] item in list) {
+                    //Debugger.Break();
                     if (item[0].IndexOf(".xml")>-1) {
                         int counter = 0;
                         if (list.FindIndex(x=>x[0]==item[0].Replace(".xml",".rdy"))>-1) {
                             foreach (string filename in files)
                             {
+                                //Debugger.Break();
                                 if (item[0].IndexOf(filename) > -1)
                                 {
-                                    var datetime = item[1] + " " + item[2] + " 2018";
-                                    DateTime myDate = DateTime.ParseExact(datetime, "HH:mm dd MMM yyyy", CultureInfo.InvariantCulture);
+                                    //var datetime = item[1] + " " + item[2] + " 2018";
+                                    var datetime = get_file_date(options, item[0]);
+                                    // Debugger.Break();
+                                    DateTime myDate = DateTime.ParseExact(datetime, "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture);                                    
                                     //Debugger.Break();
                                     if (myDate > latest[counter])
                                     {

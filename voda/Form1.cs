@@ -132,7 +132,9 @@ namespace voda
         public static int id;
         public static string m_date;*/
         public static int row = 0;
-        public static bool test_mode = false;
+        public static bool test_mode = true;
+        public static string Not_in_xml = "";
+        public static string douplicates_in_xml = "";
         //public static int readerrors = 0;
 
         public static List<int[]> idList = new List<int[]>();
@@ -310,7 +312,8 @@ namespace voda
                                 else
                                 {
                                     duplicates++;
-                                    duplicateList.Add(mbus.id);
+                                    duplicateList.Add(mbus.id);                                    
+                                    //Debugger.Break();
                                 }
                             }
                         }
@@ -324,6 +327,7 @@ namespace voda
                 ToConsole("Дубликатов в файле найдено:" + duplicates);
                 if (duplicates > 0)
                 {
+                    //Debugger.Break();
                     ToConsole("Список дубликатов:");
                     showDuplicates();
                 }
@@ -351,6 +355,8 @@ namespace voda
         private void showDuplicates() {
             List<string> log = new List<string>();
             foreach (int id in duplicateList) {
+               // Debugger.Break();
+                douplicates_in_xml += "|" + Convert.ToString(id);
                 ToConsole(id.ToString());
                 log.Add(id.ToString());
             }
@@ -396,7 +402,7 @@ namespace voda
                     {
                         if (id[0] == idrow[0]) {
                             Debug.WriteLine(idrow[0]);
-                            ToConsole("Дубликат в списке идентификаторов "+idrow[0]);
+                            ToConsole("Дубликат в списке идентификаторов "+idrow[0]);                           
                         }
                     }
                     idList.Add(idrow);
@@ -491,6 +497,8 @@ namespace voda
             mbus.readerrors = 0;
             dataGridView1.Rows.Clear();
             row = 0;
+            douplicates_in_xml = "";
+            Not_in_xml = "";
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -499,11 +507,13 @@ namespace voda
             //string data = "6856566808CF729254090001060307D27800000C7892540900046D022C3426041353000000023B0000441353000000426C21260227890003FD170E030804FF0A0201040002FF0B905803FF0C0A00BD0F00030D24FF00020201075216";
             //mbus.telegram_decode(data);
             //getVodokanalErrors();
+            //ftp.get_last_test(options);
+            //Debugger.Break();
         }
 
         private void DownloadAndParse() {
             clear_all_data();
-            List<string> files = ftp.get_last_files(ftp.file_list(options), ftp.get_files_list(options));
+            List<string> files = ftp.get_last_files(ftp.file_list(options), ftp.get_files_list(options), options);
             List<ftp.ftp_download> file_status = ftp.download_files(files, options);
             List<string> parsed_files = new List<string>();
             foreach (ftp.ftp_download downloaded in file_status)
@@ -908,7 +918,7 @@ namespace voda
         }
 
         private void FoundNotConnected() {
-            List<string> notFound = new List<string>();
+            List<string> notFound = new List<string>();            
             for (int i = 0; i < idList.Count; i++)
             {
                 bool found = false;
@@ -931,6 +941,7 @@ namespace voda
                 foreach (string not in notFound)
                 {
                     ToConsole(not);
+                    Not_in_xml += "|" + not;
                     int[] idrow = FindIds(Convert.ToInt32(not));
                     if (idrow[0] != 0)
                     {
@@ -942,8 +953,8 @@ namespace voda
                             ERR_NO = 4
                         });
                     }
-                }
-                notFound.Insert(0, "Список неподключенных счетчиков");
+                }               
+                notFound.Insert(0, "Список неподключенных счетчиков");                
                 //Debugger.Break();
                 //ToConsole("Список неподключенных счетчиков");
                 write_to_log(notFound);
@@ -1102,6 +1113,7 @@ namespace voda
                     }
                     mysql_control.insertData(dataGridView1[0, i].Value.ToString(), dataGridView1[1, i].Value.ToString(), dataGridView1[2, i].Value.ToString(), dataGridView1[3, i].Value.ToString(), dataGridView1[4, i].Value.ToString(), dataGridView1[5, i].Value.ToString(), dataGridView1[6, i].Value.ToString(), dataGridView1[7, i].Value.ToString(),dataGridView1[8,i].Value.ToString(),main_title);
                 }
+                mysql_control.insertErrors(Not_in_xml, douplicates_in_xml);                
             }
             catch (Exception ex) {
                 Debug.WriteLine(ex);
