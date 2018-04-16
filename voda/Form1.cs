@@ -132,7 +132,7 @@ namespace voda
         public static int id;
         public static string m_date;*/
         public static int row = 0;
-        public static bool test_mode = true;
+        public static bool test_mode = false;
         public static string Not_in_xml = "";
         public static string douplicates_in_xml = "";
         //public static int readerrors = 0;
