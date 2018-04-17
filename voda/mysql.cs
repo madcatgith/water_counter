@@ -153,6 +153,13 @@ namespace voda
             {
                 try
                 {
+                    bool temp_chek = tableExists(con_opt.table);
+                    if (temp_chek == true)
+                    {}
+                    else
+                    {
+                        createTable(con_opt.table);
+                    }
                     bool stop = false;
                     if (errors == "") { errors = "0"; }
                     //errors=errors.Replace(',', '|');
@@ -171,16 +178,8 @@ namespace voda
                 }
                 catch (Exception ex)
                 {
-                    bool temp_chek = tableExists(con_opt.table);
-                    if(temp_chek == true)
-                    {
-                        Debug.WriteLine(ex);
-                    }
-                    else
-                    {
-                        createTable(con_opt.table);
-                    }
-                    
+                    Debug.WriteLine(ex);
+
                 }
             }
         }
@@ -193,7 +192,7 @@ namespace voda
                     bool stop = false;
                     if (err == "") { err = "0"; }
                     if (copy == "") { copy = "0"; }
-                    string Command = @"INSERT INTO `"+con_opt.table+ "`(`id`, `not_in_xml`, `duplicates_in_xml`) VALUES ('0','" + err + "','" + copy + "')";
+                    string Command = @"INSERT INTO `"+con_opt.table+ "`(`not_in_xml`, `duplicates_in_xml`) VALUES ('" + err + "','" + copy + "')";
                     //Debugger.Break();
                     MySqlConnection myConnection = new MySqlConnection(Connection_string);
                     MySqlCommand myCommand = new MySqlCommand(Command, myConnection);
