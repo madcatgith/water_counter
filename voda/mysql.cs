@@ -132,7 +132,7 @@ namespace voda
             {
                 try
                 {
-                    string Command = @"CREATE TABLE "+table+ "(id INT NOT NULL, id_nak VARCHAR(20) NULL, val VARCHAR(20) NULL, date VARCHAR(40) NULL, unixtime VARCHAR(10) NULL, id_vod VARCHAR(20) NULL, nzav VARCHAR(20) NULL, errors VARCHAR(10) NULL,send VARCHAR(1) NULL, main_title VARCHAR(10) NOT NULL, full_count VARCHAR(10),  PRIMARY KEY (id), not_in_xml VARCHAR(10000) NOT NULL, duplicates_in_xml VARCHAR(10000) NOT NULL)";
+                    string Command = @"CREATE TABLE "+table+ "(id INT NOT NULL, id_nak VARCHAR(20) NULL, val VARCHAR(20) NULL, date VARCHAR(40) NULL, unixtime VARCHAR(10) NULL, id_vod VARCHAR(20) NULL, nzav VARCHAR(20) NULL, errors VARCHAR(10) NULL,send VARCHAR(1) NULL, main_title VARCHAR(10) NOT NULL, full_count VARCHAR(10),  PRIMARY KEY (id), not_in_xml VARCHAR(10000) NOT NULL, duplicates_in_xml VARCHAR(10000) NOT NULL, prog_time VARCHAR(20) NOT NULL)";
                     MySqlConnection myConnection = new MySqlConnection(Connection_string);
                     MySqlCommand myCommand = new MySqlCommand(Command, myConnection);
                     myConnection.Open();
@@ -190,7 +190,8 @@ namespace voda
                     bool stop = false;
                     if (err == "") { err = "0"; }
                     if (copy == "") { copy = "0"; }
-                    string Command = @"INSERT INTO `"+con_opt.table+ "`(`not_in_xml`, `duplicates_in_xml`) VALUES ('" + err + "','" + copy + "')";
+                    string time = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+                    string Command = @"INSERT INTO `"+con_opt.table+ "`(`not_in_xml`, `duplicates_in_xml`, `prog_time`) VALUES ('" + err + "','" + copy + "','" + time + "')";
                     //Debugger.Break();
                     MySqlConnection myConnection = new MySqlConnection(Connection_string);
                     MySqlCommand myCommand = new MySqlCommand(Command, myConnection);
