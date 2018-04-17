@@ -154,9 +154,7 @@ namespace voda
                 try
                 {
                     bool temp_chek = tableExists(con_opt.table);
-                    if (temp_chek == true)
-                    {}
-                    else
+                    if (temp_chek == false)                    
                     {
                         createTable(con_opt.table);
                     }
