@@ -190,8 +190,17 @@ namespace voda
                     bool stop = false;
                     if (err == "") { err = "0"; }
                     if (copy == "") { copy = "0"; }
-                    string time = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
-                    string Command = @"INSERT INTO `"+con_opt.table+ "`(`not_in_xml`, `duplicates_in_xml`, `prog_time`) VALUES ('" + err + "','" + copy + "','" + time + "')";
+                    string time = "0";
+                    try
+                    {
+                        time = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+                    }
+                    catch (Exception ex)
+                    {
+                        time = "0";
+                        Debug.WriteLine(ex);
+                    }
+                        string Command = @"INSERT INTO `"+con_opt.table+ "`(`not_in_xml`, `duplicates_in_xml`, `prog_time`) VALUES ('" + err + "','" + copy + "','" + time + "')";
                     //Debugger.Break();
                     MySqlConnection myConnection = new MySqlConnection(Connection_string);
                     MySqlCommand myCommand = new MySqlCommand(Command, myConnection);
