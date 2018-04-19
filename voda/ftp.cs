@@ -42,6 +42,7 @@ namespace voda
 
                     using (var reader = new StreamReader(response.GetResponseStream()))
                     {
+                        //Debugger.Break();
                         var line = reader.ReadLine();
                         while (line != null)
                         {
@@ -49,6 +50,7 @@ namespace voda
                             result.Append("\n");
                             line = reader.ReadLine();
                         }
+                        //Debugger.Break();
                         result.Remove(result.ToString().LastIndexOf('\n'), 1);
                     }
 
@@ -117,15 +119,23 @@ namespace voda
         }
 
         /*функция получения даты последнего изменения файла 13.04.18*/
-            public string get_file_date(ftp_options options, string file_name)
+            public DateTime get_file_date(ftp_options options, string file_name)
             {
+            DateTime date_last_mod = DateTime.ParseExact("01.01.2016 00:00:01", "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            //Debugger.Break();
+            try
+                {
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + options.host + "/" + options.path.Trim('/', ' ') + "/" + file_name);
                 request.Method = WebRequestMethods.Ftp.GetDateTimestamp;
                 request.Credentials = new NetworkCredential(options.login, options.password);
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-                string date_last_mod = Convert.ToString(response.LastModified);
-                return date_last_mod;
-            }
+                date_last_mod = response.LastModified;                
+                }
+                catch(Exception ex) {
+                    Debug.WriteLine(ex);
+                }
+            return date_last_mod;
+        }
         /*функция получения даты последнего изменения файла конец*/
         public List<string[]> get_files_list(ftp_options options) {
             try
@@ -214,7 +224,7 @@ namespace voda
                                     //var datetime = item[1] + " " + item[2] + " 2018";
                                     var datetime = get_file_date(options, item[0]);
                                     // Debugger.Break();
-                                    DateTime myDate = DateTime.ParseExact(datetime, "dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture);                                    
+                                    DateTime myDate = datetime;                                    
                                     //Debugger.Break();
                                     if (myDate > latest[counter])
                                     {
@@ -340,7 +350,7 @@ namespace voda
                             //Debugger.Break();
 
                             FtpWebResponse response = (FtpWebResponse)client.GetResponse(); // вот тут ошибку выдает
-
+                            //Debugger.Break();
                             Stream ftpStream = response.GetResponseStream();
                             response.Close();
                         }

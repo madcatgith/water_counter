@@ -208,22 +208,25 @@ namespace voda
                 mbus.readerrors = 0;
                 int duplicates = 0;
                 duplicateList.Clear();
+                //Debugger.Break();
                 foreach (XmlNode childnode in mem.ChildNodes)
                 {
                     foreach (XmlNode child in childnode.ChildNodes)
                     {
+                        //Debugger.Break();
                         if (child.Name == "MBTIME")
                         {
+                            
                             byte[] timestamp = mbus.StringToByteArray(child.InnerText);
                             mbus.m_date = mbus.convertDate(timestamp);
+                            //Debugger.Break();
                             //Debug.WriteLine(mbus.m_date);
 
                         }
                         if (child.Name == "MBTEL")
                         {
                             if (mbus.decodeTelegram(child.InnerText))
-                            {
-                                //
+                            {                                
                                 if (checkDuplicates(mbus.id))
                                 {
                                     var dt = DateTime.ParseExact(mbus.m_date, "HH:mm dd.MM.yy", CultureInfo.InvariantCulture);

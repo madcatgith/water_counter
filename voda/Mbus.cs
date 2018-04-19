@@ -62,12 +62,13 @@ namespace voda
 
         //Перевод даты и времени
         public string convertDate(byte[] data)
-        {
+        {            
             int minutes = data[0] & 0x3F;
             int hours = data[1] & 0x1F;
             int day = data[2] & 0x1F;
             int month = (data[3] & 0x0F);
             int year = ((data[2] & 0xE0) >> 5) | ((data[3] & 0xF0) >> 1);
+            //Debugger.Break();
             string date = hours.ToString().PadLeft(2, '0') + ":" + minutes.ToString().PadLeft(2, '0') + " " + day.ToString().PadLeft(2, '0') + "." + month.ToString().PadLeft(2, '0') + "." + year.ToString();
             return date;
         }
@@ -91,6 +92,7 @@ namespace voda
                     {
                         mbus_header[i] = byteData[i];
                     }
+                    //Debugger.Break();
                     if (validateHeader(mbus_header))
                     {
                         for (i = 4; i < 12; i++)
@@ -108,8 +110,9 @@ namespace voda
                             }
 
                         }
-                        //Debug.WriteLine(mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }));
+                        //Debug.WriteLine(mbus_decode_manufacturer(new byte[] { byteData[11], byteData[12] }));                       
                         id = Convert.ToInt32(BitConverter.ToString(mbus_id.Reverse().ToArray()).Replace("-", String.Empty));
+                        //Debugger.Break();
                         //Debug.WriteLine(id);
                         if (validateMan(new byte[] { byteData[11], byteData[12] }))
                         {
@@ -119,6 +122,7 @@ namespace voda
                             //Debug.WriteLine(errors_decoded_apt.Count);
                             byte[] val = new byte[] { byteData[33], byteData[34], byteData[35], byteData[36] };
                             normval = Convert.ToInt32(BitConverter.ToString(val.Reverse().ToArray()).Replace("-", String.Empty), 16);
+                            //Debugger.Break();
                             return true;
                         }
                         else
@@ -370,6 +374,7 @@ namespace voda
         //Проверка правильности заголовка
         public bool validateHeader(byte[] header)
         {
+            //Debugger.Break();
             if ((header[0] == 0x68) && (header[3] == 0x68))
             {
                 return true;
